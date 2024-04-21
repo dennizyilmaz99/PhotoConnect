@@ -13,18 +13,16 @@ class AppDelegate: NSObject, UIApplicationDelegate {
 
 @main
 struct PhotoConnect: App {
-  // register app delegate for Firebase setup
-  @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
-
+    @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
     @StateObject private var authViewModel = AuthViewModel()
 
-        var body: some Scene {
-            WindowGroup {
-                if authViewModel.isUserAuthenticated {
-                    HomeScreen() // Din huvudvy efter inloggning
-                } else {
-                    LoginScreen() // Din inloggningsvy
-                }
+    var body: some Scene {
+        WindowGroup {
+            if authViewModel.isUserAuthenticated {
+                HomeScreen() // Din huvudvy efter inloggning
+            } else {
+                LandingScreen() // Din inloggningsvy
             }
         }
+    }
 }

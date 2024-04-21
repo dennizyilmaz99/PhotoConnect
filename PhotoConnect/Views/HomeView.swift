@@ -1,15 +1,17 @@
 import SwiftUI
 
 struct HomeView: View {
+    @State private var showModal: Bool = false
+    
     var body: some View {
     VStack{
-        Spacer()
         VStack{
-            Text("Home")
+            Text("Flöde").font(.title).bold().frame(maxWidth: .infinity, alignment: .leading).padding()
         }
         Spacer()
         HStack{
             Button(action: {
+                showModal = true
                         print("Upload button tapped")
                     }) {
                         Image(systemName: "arrow.up.circle.fill")
@@ -21,6 +23,19 @@ struct HomeView: View {
                             .foregroundColor(.blue)
                     }
             }.offset(y: -20)
+        }.sheet(isPresented: $showModal) {
+            ModalView()
+        }
+    }
+}
+
+private struct ModalView: View {
+    var body: some View {
+        VStack {
+            Text("Lägg upp bild")
+                .font(.title3).bold()
+                .padding()
+            Spacer()
         }
     }
 }

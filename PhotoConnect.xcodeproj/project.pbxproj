@@ -13,6 +13,7 @@
 		59093ED32BD530CC00064FC8 /* AuthViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 59093ED22BD530CC00064FC8 /* AuthViewModel.swift */; };
 		59093ED62BD5472400064FC8 /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 59093ED52BD5472400064FC8 /* HomeView.swift */; };
 		59093ED82BD5473200064FC8 /* ProfileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 59093ED72BD5473200064FC8 /* ProfileView.swift */; };
+		59093EDB2BD54E3200064FC8 /* UserProfileViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 59093EDA2BD54E3200064FC8 /* UserProfileViewModel.swift */; };
 		59DDAD102B4994F500183180 /* PhotoConnectApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 59DDAD0F2B4994F500183180 /* PhotoConnectApp.swift */; };
 		59DDAD122B4994F500183180 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 59DDAD112B4994F500183180 /* ContentView.swift */; };
 		59DDAD142B4994F700183180 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 59DDAD132B4994F700183180 /* Assets.xcassets */; };
@@ -48,6 +49,7 @@
 		59093ED22BD530CC00064FC8 /* AuthViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthViewModel.swift; sourceTree = "<group>"; };
 		59093ED52BD5472400064FC8 /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
 		59093ED72BD5473200064FC8 /* ProfileView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileView.swift; sourceTree = "<group>"; };
+		59093EDA2BD54E3200064FC8 /* UserProfileViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserProfileViewModel.swift; sourceTree = "<group>"; };
 		59DDAD0C2B4994F500183180 /* PhotoConnect.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PhotoConnect.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		59DDAD0F2B4994F500183180 /* PhotoConnectApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoConnectApp.swift; sourceTree = "<group>"; };
 		59DDAD112B4994F500183180 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -107,6 +109,15 @@
 			path = Views;
 			sourceTree = "<group>";
 		};
+		59093ED92BD54E1700064FC8 /* ViewModels */ = {
+			isa = PBXGroup;
+			children = (
+				59093ED22BD530CC00064FC8 /* AuthViewModel.swift */,
+				59093EDA2BD54E3200064FC8 /* UserProfileViewModel.swift */,
+			);
+			path = ViewModels;
+			sourceTree = "<group>";
+		};
 		59DDAD032B4994F500183180 = {
 			isa = PBXGroup;
 			children = (
@@ -131,14 +142,14 @@
 		59DDAD0E2B4994F500183180 /* PhotoConnect */ = {
 			isa = PBXGroup;
 			children = (
+				59DDAD152B4994F700183180 /* Preview Content */,
+				59DDAD3B2B49977600183180 /* Screens */,
+				59093ED92BD54E1700064FC8 /* ViewModels */,
 				59093ED42BD546FC00064FC8 /* Views */,
 				59093ECA2BD5258800064FC8 /* GoogleService-Info.plist */,
-				59DDAD3B2B49977600183180 /* Screens */,
 				59DDAD0F2B4994F500183180 /* PhotoConnectApp.swift */,
 				59DDAD112B4994F500183180 /* ContentView.swift */,
 				59DDAD132B4994F700183180 /* Assets.xcassets */,
-				59DDAD152B4994F700183180 /* Preview Content */,
-				59093ED22BD530CC00064FC8 /* AuthViewModel.swift */,
 			);
 			path = PhotoConnect;
 			sourceTree = "<group>";
@@ -324,6 +335,7 @@
 				59093ED32BD530CC00064FC8 /* AuthViewModel.swift in Sources */,
 				59DDAD3A2B49977000183180 /* HomeScreen.swift in Sources */,
 				59093ED62BD5472400064FC8 /* HomeView.swift in Sources */,
+				59093EDB2BD54E3200064FC8 /* UserProfileViewModel.swift in Sources */,
 				59DDAD3D2B49979300183180 /* LandingScreen.swift in Sources */,
 				59DDAD3F2B4997CF00183180 /* LoginScreen.swift in Sources */,
 			);

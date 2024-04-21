@@ -1,9 +1,12 @@
 import SwiftUI
 import FirebaseAuth
+import FirebaseFirestore
 
 struct CreateAccScreen: View {
+    
     @State private var email = ""
     @State private var password = ""
+    @State private var name = ""
 
     var body: some View {
         NavigationStack {
@@ -11,8 +14,8 @@ struct CreateAccScreen: View {
                 Spacer()
                 Header()
                 Spacer()
-                TextFieldContainer(email: $email, password: $password)
-                ButtonContainer(email: $email, password: $password)
+                TextFieldContainer(email: $email, password: $password, name: $name)
+                ButtonContainer(email: $email, password: $password, name: $name)
                 Spacer()
                 Footer()
             }
@@ -41,9 +44,12 @@ private struct Footer: View {
 private struct TextFieldContainer: View {
     @Binding var email: String
     @Binding var password: String
+    @Binding var name: String
 
     var body: some View {
         VStack {
+            TextField("Namn", text: $name)
+                .textFieldStyle(RoundedBorderTextFieldStyle()).padding()
             TextField("E-post", text: $email)
                 .textFieldStyle(RoundedBorderTextFieldStyle()).padding()
             SecureField("Lösenord", text: $password)
@@ -61,12 +67,13 @@ private struct Header: View {
 private struct ButtonContainer: View {
     @Binding var email: String
     @Binding var password: String
+    @Binding var name: String
     @State private var isNavigating = false
 
     var body: some View {
         VStack {
             Button(action: {
-                createUser(email: email, password: password)
+                createUser(email: email, password: password, name: name)
             }, label: {
                 Text("Skapa konto")
                     .foregroundColor(.white)
@@ -80,13 +87,31 @@ private struct ButtonContainer: View {
         }
     }
 
-    func createUser(email: String, password: String) {
+    func createUser(email: String, password: String, name: String) {
         Auth.auth().createUser(withEmail: email, password: password) { authResult, error in
             if let error = error {
                 print("Error creating user: \(error.localizedDescription)")
-            } else {
-                print("User created successfully")
+            } else if let authResult = authResult {
+                print("User created successfully, UID: \(authResult.user.uid)")
+                // Spara användarinformation i Firestore med UID som dokument-ID
+                self.addUserToFirestore(email: email, name: name, password: password, uid: authResult.user.uid)
                 isNavigating = true
+            }
+        }
+    }
+
+    func addUserToFirestore(email: String, name: String, password: String, uid: String) {
+        let db = Firestore.firestore()
+        db.collection("users").document(uid).setData([
+            "uid": uid,
+            "email": email,
+            "name": name,
+            "password": password
+        ]) { error in
+            if let error = error {
+                print("Error writing document: \(error.localizedDescription)")
+            } else {
+                print("Document successfully written!")
             }
         }
     }

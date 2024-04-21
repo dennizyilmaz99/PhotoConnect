@@ -1,4 +1,5 @@
 import SwiftUI
+import FirebaseAuth
 
 struct HomeScreen: View {
     var body: some View {
@@ -12,7 +13,7 @@ struct HomeScreen: View {
                 .tabItem {
                     Label("Profil", systemImage: "person")
                 }
-        }
+        }.navigationBarBackButtonHidden()
     }
 }
 
