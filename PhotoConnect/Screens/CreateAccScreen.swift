@@ -9,17 +9,14 @@ struct CreateAccScreen: View {
     @State private var name = ""
 
     var body: some View {
-        NavigationStack {
             VStack {
-                Spacer()
-                Header()
                 Spacer()
                 TextFieldContainer(email: $email, password: $password, name: $name)
                 ButtonContainer(email: $email, password: $password, name: $name)
                 Spacer()
                 Footer()
-            }
-        }
+            }.navigationTitle("Skapa konto")
+            .navigationBarTitleDisplayMode(.large)
     }
 }
 
@@ -58,12 +55,6 @@ private struct TextFieldContainer: View {
     }
 }
 
-private struct Header: View {
-    var body: some View {
-        Text("Skapa konto").font(.title).bold()
-    }
-}
-
 private struct ButtonContainer: View {
     @Binding var email: String
     @Binding var password: String
@@ -71,20 +62,20 @@ private struct ButtonContainer: View {
     @State private var isNavigating = false
 
     var body: some View {
-        VStack {
-            Button(action: {
-                createUser(email: email, password: password, name: name)
-            }, label: {
-                Text("Skapa konto")
-                    .foregroundColor(.white)
-                    .frame(width: 225, height: 55)
-                    .background(Color.blue)
-                    .clipShape(RoundedRectangle(cornerRadius: 10))
-            })
-            .navigationDestination(isPresented: $isNavigating) {
-                LoginScreen()
-            }
-        }
+            VStack {
+                Button(action: {
+                    createUser(email: email, password: password, name: name)
+                }, label: {
+                    Text("Skapa konto")
+                        .foregroundColor(.white)
+                        .frame(width: 225, height: 55)
+                        .background(Color.blue)
+                        .clipShape(RoundedRectangle(cornerRadius: 10))
+                })
+                .navigationDestination(isPresented: $isNavigating) {
+                    LoginScreen()
+                }
+            }.navigationBarBackButtonHidden()
     }
 
     func createUser(email: String, password: String, name: String) {

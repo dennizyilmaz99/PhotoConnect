@@ -27,22 +27,22 @@ private struct ButtonContainer: View {
     @State private var isNavigating = false
     
     var body: some View {
-        VStack {
-            Button(action: {
-                isNavigating = true
-            }, label: {
-                Rectangle()
-                    .foregroundStyle(.blue)
-                    .frame(width: 225, height: 55)
-                    .clipShape(RoundedRectangle(cornerRadius: 10))
-                    .overlay {
-                        Text("Skapa dina minnen").foregroundStyle(.white)
-                    }
-            })
-        }
-        .navigationDestination(isPresented: $isNavigating) {
-            CreateAccScreen()
-        }
+            VStack {
+                Button(action: {
+                    isNavigating = true
+                }, label: {
+                    Rectangle()
+                        .foregroundStyle(.blue)
+                        .frame(width: 225, height: 55)
+                        .clipShape(RoundedRectangle(cornerRadius: 10))
+                        .overlay {
+                            Text("Skapa dina minnen").foregroundStyle(.white)
+                        }
+                })
+            }
+            .navigationDestination(isPresented: $isNavigating) {
+                CreateAccScreen()
+            }
     }
 }
 

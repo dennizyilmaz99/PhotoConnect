@@ -9,12 +9,10 @@ struct LoginScreen: View {
         NavigationStack {
             VStack {
                 Spacer()
-                Header()
-                Spacer()
                 TextFieldContainer(email: $email, password: $password)
                 ButtonContainer(email: $email, password: $password)
                 Spacer()
-            }
+            }.navigationTitle("Logga in").navigationBarTitleDisplayMode(.large)
         }
     }
 }
@@ -33,12 +31,6 @@ private struct TextFieldContainer: View {
     }
 }
 
-private struct Header: View {
-    var body: some View {
-        Text("Logga in").font(.title).bold()
-    }
-}
-
 private struct ButtonContainer: View {
     @Binding var email: String
     @Binding var password: String
@@ -49,7 +41,7 @@ private struct ButtonContainer: View {
             Button(action: {
                 login(email: email, password: password)
             }, label: {
-                Text("Skapa konto")
+                Text("Logga in")
                     .foregroundColor(.white)
                     .frame(width: 225, height: 55)
                     .background(Color.blue)

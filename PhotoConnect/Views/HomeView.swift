@@ -1,7 +1,49 @@
 import SwiftUI
+import UIKit
+
+struct ImagePicker: UIViewControllerRepresentable {
+    @Environment(\.presentationMode) var presentationMode
+    @Binding var image: UIImage?
+
+    func makeUIViewController(context: Context) -> UIImagePickerController {
+        let picker = UIImagePickerController()
+        picker.delegate = context.coordinator
+        return picker
+    }
+
+    func updateUIViewController(_ uiViewController: UIImagePickerController, context: Context) {
+        // Ingen uppdatering krävs
+    }
+
+    func makeCoordinator() -> Coordinator {
+        Coordinator(self)
+    }
+
+    class Coordinator: NSObject, UINavigationControllerDelegate, UIImagePickerControllerDelegate {
+        var parent: ImagePicker
+
+        init(_ parent: ImagePicker) {
+            self.parent = parent
+        }
+
+        func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
+            if let image = info[.originalImage] as? UIImage {
+                parent.image = image
+            }
+
+            parent.presentationMode.wrappedValue.dismiss()
+        }
+
+        func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
+            parent.presentationMode.wrappedValue.dismiss()
+        }
+    }
+}
+
 
 struct HomeView: View {
-    @State private var showModal: Bool = false
+    @State private var image: UIImage?
+    @State private var showingImagePicker = false
     
     var body: some View {
     VStack{
@@ -11,31 +53,20 @@ struct HomeView: View {
         Spacer()
         HStack{
             Button(action: {
-                showModal = true
+                showingImagePicker = true
                         print("Upload button tapped")
                     }) {
                         Image(systemName: "arrow.up.circle.fill")
                             .resizable()
                             .aspectRatio(contentMode: .fit)
-                            .frame(width: 50, height: 50)
-                            .background(Color.blue.opacity(0.5))
+                            .frame(width: 60, height: 60)
+                            .background(Color.blue.opacity(0.2))
                             .clipShape(Circle())
                             .foregroundColor(.blue)
                     }
             }.offset(y: -20)
-        }.sheet(isPresented: $showModal) {
-            ModalView()
-        }
-    }
-}
-
-private struct ModalView: View {
-    var body: some View {
-        VStack {
-            Text("Lägg upp bild")
-                .font(.title3).bold()
-                .padding()
-            Spacer()
+        }.sheet(isPresented: $showingImagePicker) {
+            ImagePicker(image: $image)
         }
     }
 }

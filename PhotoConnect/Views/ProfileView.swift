@@ -47,9 +47,9 @@ struct ProfileView: View {
         VStack {
             VStack {
                 Text("Dina bilder")
-                    .font(.title3).bold()
+                    .font(.headline).bold()
                     .frame(maxWidth: .infinity, alignment: .leading)
-            }.padding()
+            }.padding(.horizontal)
             VStack {
                 let columns = [
                     GridItem(.flexible(), spacing: 10),
