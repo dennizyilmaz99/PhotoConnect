@@ -1,40 +1,21 @@
 import SwiftUI
+import FirebaseFirestore
 import FirebaseAuth
-
-struct ImageItem: Identifiable {
-    let id = UUID()  // Automatiskt genererat unikt ID
-    let imageName: String
-}
+import SDWebImageSwiftUI
 
 struct ProfileView: View {
     @StateObject private var viewModel = UserProfileViewModel()
     @State private var showModal: Bool = false
-    
-    let images = [
-           ImageItem(imageName: "photo"),
-           ImageItem(imageName: "photo"),
-           ImageItem(imageName: "photo"),
-           ImageItem(imageName: "photo.fill"),
-           ImageItem(imageName: "photo.fill"),
-           ImageItem(imageName: "photo.fill"),
-           ImageItem(imageName: "photo"),
-           ImageItem(imageName: "photo"),
-           ImageItem(imageName: "photo"),
-           ImageItem(imageName: "photo.fill"),
-           ImageItem(imageName: "photo.fill"),
-           ImageItem(imageName: "photo.fill")
-       ]
 
     var body: some View {
-        
         VStack {
-            HStack{
+            HStack {
                 Text(viewModel.userName).frame(maxWidth: .infinity, alignment: .leading)
                     .font(.title).bold()
                     .padding()
                 
                 Button(action: {
-                    print("Settings ikon klickad")
+                    print("Settings icon clicked")
                     showModal = true
                 }) {
                     Image(systemName: "gear")
@@ -43,24 +24,23 @@ struct ProfileView: View {
                 }
             }.sheet(isPresented: $showModal) {
                 ModalView()
-        }
-        VStack {
+            }
+            
             VStack {
                 Text("Dina bilder")
                     .font(.headline).bold()
                     .frame(maxWidth: .infinity, alignment: .leading)
-            }.padding(.horizontal)
-            VStack {
-                let columns = [
-                    GridItem(.flexible(), spacing: 10),
-                    GridItem(.flexible(), spacing: 10),
-                    GridItem(.flexible(), spacing: 10)
-                ]
-                
+                    .padding(.horizontal)
                 ScrollView {
+                    let columns = [
+                        GridItem(.flexible(), spacing: 10),
+                        GridItem(.flexible(), spacing: 10),
+                        GridItem(.flexible(), spacing: 10)
+                    ]
+                    
                     LazyVGrid(columns: columns, spacing: 10) {
-                        ForEach(images) { image in
-                            Image(systemName: image.imageName)
+                        ForEach(viewModel.images) { image in
+                            WebImage(url: URL(string: image.imageName))
                                 .resizable()
                                 .scaledToFill()
                                 .frame(width: 115, height: 115)
@@ -70,12 +50,9 @@ struct ProfileView: View {
                     }.padding()
                 }
             }
+            Spacer()
         }
-        Spacer()
-        
     }
-        }
-    
 }
 
 private struct ModalView: View {
@@ -94,18 +71,18 @@ private struct ModalView: View {
             }
         }
     }
+    
     func logOut() {
-           do {
-               try Auth.auth().signOut()
-               // Hantera vad som händer efter en lyckad utloggning, t.ex. navigera till inloggningsskärmen
-               print("Användaren har loggat ut.")
-               
-           } catch {
-               print("Ett fel uppstod vid utloggning: \(error.localizedDescription)")
-           }
-       }
+        do {
+            try Auth.auth().signOut()
+            print("Användaren har loggat ut.")
+        } catch {
+            print("Ett fel uppstod vid utloggning: \(error.localizedDescription)")
+        }
+    }
 }
 
+// Preview
 #Preview {
     ProfileView()
 }

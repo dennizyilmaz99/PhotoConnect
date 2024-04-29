@@ -14,6 +14,10 @@
 		59093ED62BD5472400064FC8 /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 59093ED52BD5472400064FC8 /* HomeView.swift */; };
 		59093ED82BD5473200064FC8 /* ProfileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 59093ED72BD5473200064FC8 /* ProfileView.swift */; };
 		59093EDB2BD54E3200064FC8 /* UserProfileViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 59093EDA2BD54E3200064FC8 /* UserProfileViewModel.swift */; };
+		59093EDD2BDFE6A300064FC8 /* FirebaseStorage in Frameworks */ = {isa = PBXBuildFile; productRef = 59093EDC2BDFE6A300064FC8 /* FirebaseStorage */; };
+		59093EE02BDFEA1900064FC8 /* SDWebImageSwiftUI in Frameworks */ = {isa = PBXBuildFile; productRef = 59093EDF2BDFEA1900064FC8 /* SDWebImageSwiftUI */; };
+		59093EE22BDFEEAD00064FC8 /* ImagePickerHomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 59093EE12BDFEEAD00064FC8 /* ImagePickerHomeView.swift */; };
+		59093EE42BDFEF4C00064FC8 /* HomeViewViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 59093EE32BDFEF4C00064FC8 /* HomeViewViewModel.swift */; };
 		59DDAD102B4994F500183180 /* PhotoConnectApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 59DDAD0F2B4994F500183180 /* PhotoConnectApp.swift */; };
 		59DDAD122B4994F500183180 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 59DDAD112B4994F500183180 /* ContentView.swift */; };
 		59DDAD142B4994F700183180 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 59DDAD132B4994F700183180 /* Assets.xcassets */; };
@@ -50,6 +54,8 @@
 		59093ED52BD5472400064FC8 /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
 		59093ED72BD5473200064FC8 /* ProfileView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileView.swift; sourceTree = "<group>"; };
 		59093EDA2BD54E3200064FC8 /* UserProfileViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserProfileViewModel.swift; sourceTree = "<group>"; };
+		59093EE12BDFEEAD00064FC8 /* ImagePickerHomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImagePickerHomeView.swift; sourceTree = "<group>"; };
+		59093EE32BDFEF4C00064FC8 /* HomeViewViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeViewViewModel.swift; sourceTree = "<group>"; };
 		59DDAD0C2B4994F500183180 /* PhotoConnect.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PhotoConnect.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		59DDAD0F2B4994F500183180 /* PhotoConnectApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoConnectApp.swift; sourceTree = "<group>"; };
 		59DDAD112B4994F500183180 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -71,8 +77,10 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				59093EE02BDFEA1900064FC8 /* SDWebImageSwiftUI in Frameworks */,
 				59093ECF2BD527C700064FC8 /* FirebaseAuth in Frameworks */,
 				59093ED12BD527C700064FC8 /* FirebaseFirestore in Frameworks */,
+				59093EDD2BDFE6A300064FC8 /* FirebaseStorage in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -114,6 +122,8 @@
 			children = (
 				59093ED22BD530CC00064FC8 /* AuthViewModel.swift */,
 				59093EDA2BD54E3200064FC8 /* UserProfileViewModel.swift */,
+				59093EE12BDFEEAD00064FC8 /* ImagePickerHomeView.swift */,
+				59093EE32BDFEF4C00064FC8 /* HomeViewViewModel.swift */,
 			);
 			path = ViewModels;
 			sourceTree = "<group>";
@@ -209,6 +219,8 @@
 			packageProductDependencies = (
 				59093ECE2BD527C700064FC8 /* FirebaseAuth */,
 				59093ED02BD527C700064FC8 /* FirebaseFirestore */,
+				59093EDC2BDFE6A300064FC8 /* FirebaseStorage */,
+				59093EDF2BDFEA1900064FC8 /* SDWebImageSwiftUI */,
 			);
 			productName = PhotoConnect;
 			productReference = 59DDAD0C2B4994F500183180 /* PhotoConnect.app */;
@@ -284,6 +296,7 @@
 			mainGroup = 59DDAD032B4994F500183180;
 			packageReferences = (
 				59093ECC2BD5261100064FC8 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
+				59093EDE2BDFEA1900064FC8 /* XCRemoteSwiftPackageReference "SDWebImageSwiftUI" */,
 			);
 			productRefGroup = 59DDAD0D2B4994F500183180 /* Products */;
 			projectDirPath = "";
@@ -337,6 +350,8 @@
 				59093ED62BD5472400064FC8 /* HomeView.swift in Sources */,
 				59093EDB2BD54E3200064FC8 /* UserProfileViewModel.swift in Sources */,
 				59DDAD3D2B49979300183180 /* LandingScreen.swift in Sources */,
+				59093EE22BDFEEAD00064FC8 /* ImagePickerHomeView.swift in Sources */,
+				59093EE42BDFEF4C00064FC8 /* HomeViewViewModel.swift in Sources */,
 				59DDAD3F2B4997CF00183180 /* LoginScreen.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -679,6 +694,14 @@
 				minimumVersion = 10.24.0;
 			};
 		};
+		59093EDE2BDFEA1900064FC8 /* XCRemoteSwiftPackageReference "SDWebImageSwiftUI" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/SDWebImage/SDWebImageSwiftUI";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 3.0.4;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -691,6 +714,16 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 59093ECC2BD5261100064FC8 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
 			productName = FirebaseFirestore;
+		};
+		59093EDC2BDFE6A300064FC8 /* FirebaseStorage */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 59093ECC2BD5261100064FC8 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseStorage;
+		};
+		59093EDF2BDFEA1900064FC8 /* SDWebImageSwiftUI */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 59093EDE2BDFEA1900064FC8 /* XCRemoteSwiftPackageReference "SDWebImageSwiftUI" */;
+			productName = SDWebImageSwiftUI;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
