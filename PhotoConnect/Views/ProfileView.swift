@@ -31,13 +31,14 @@ struct ProfileView: View {
                     .font(.headline).bold()
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .padding(.horizontal)
+                
+                let columns = [
+                    GridItem(.flexible(), spacing: 10),
+                    GridItem(.flexible(), spacing: 10),
+                    GridItem(.flexible(), spacing: 10)
+                ]
+                
                 ScrollView {
-                    let columns = [
-                        GridItem(.flexible(), spacing: 10),
-                        GridItem(.flexible(), spacing: 10),
-                        GridItem(.flexible(), spacing: 10)
-                    ]
-                    
                     LazyVGrid(columns: columns, spacing: 10) {
                         ForEach(viewModel.images) { image in
                             WebImage(url: URL(string: image.imageName))
