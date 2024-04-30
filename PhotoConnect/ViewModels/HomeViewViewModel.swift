@@ -5,6 +5,7 @@ struct UserImage: Identifiable {
     let id: String  // Använd UUID eller bildens unika identifierare
     let userName: String
     let imageURL: String
+    let timestamp: Timestamp // Lägg till timestamp
 }
 
 
@@ -37,13 +38,19 @@ class HomeViewViewModel: ObservableObject {
                 let data = document.data()
                 let userName = data["name"] as? String ?? "Unknown User"
                 
-                if let images = data["images"] as? [String] {
-                    for imageURL in images {
-                        let newImage = UserImage(id: UUID().uuidString, userName: userName, imageURL: imageURL)
-                        newImages.append(newImage)
+                if let imagesData = data["images"] as? [[String: Any]] {
+                    for imageData in imagesData {
+                        if let imageURL = imageData["url"] as? String,
+                           let timestamp = imageData["timestamp"] as? Timestamp {
+                            let newImage = UserImage(id: UUID().uuidString, userName: userName, imageURL: imageURL, timestamp: timestamp)
+                            newImages.append(newImage)
+                        }
                     }
                 }
             }
+            
+            // Sortera listan baserat på timestamp (senaste först)
+            newImages.sort(by: { $0.timestamp.seconds > $1.timestamp.seconds })
             
             DispatchQueue.main.async {
                 self.userImages = newImages

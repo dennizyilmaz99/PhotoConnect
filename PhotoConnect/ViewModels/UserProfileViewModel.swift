@@ -3,8 +3,9 @@ import FirebaseFirestore
 import SwiftUI
 
 struct ImageItem: Identifiable {
-    let id = UUID()  // Automatiskt genererat unikt ID
+    let id = UUID()
     let imageName: String
+    let timestamp: Timestamp
 }
 
 
@@ -55,23 +56,32 @@ class UserProfileViewModel: ObservableObject {
         guard let uid = Auth.auth().currentUser?.uid else { return }
 
         let db = Firestore.firestore()
-        db.collection("users").document(uid).getDocument { (document, error) in
+        db.collection("users").document(uid).collection("images").addSnapshotListener { (snapshot, error) in
             if let error = error {
-                print("Error fetching user document: \(error.localizedDescription)")
+                print("Error fetching user images: \(error.localizedDescription)")
                 return
             }
 
-            guard let document = document, document.exists else {
-                print("User document does not exist")
+            guard let snapshot = snapshot else {
+                print("No images found for user")
                 return
             }
 
-            if let data = document.data(), let imageURLs = data["images"] as? [String] {
-                DispatchQueue.main.async {
-                    self.images = imageURLs.map { ImageItem(imageName: $0) }
+            var newImages: [ImageItem] = []
+
+            for document in snapshot.documents {
+                let data = document.data()
+                if let imageName = data["name"] as? String,
+                   let timestamp = data["timestamp"] as? Timestamp {
+                    let newImage = ImageItem(imageName: imageName, timestamp: timestamp)
+                    newImages.append(newImage)
                 }
-            } else {
-                print("No image URLs found in user document")
+            }
+            
+            newImages.sort(by: { $0.timestamp.seconds > $1.timestamp.seconds })
+            
+            DispatchQueue.main.async {
+                self.images = newImages
             }
         }
     }

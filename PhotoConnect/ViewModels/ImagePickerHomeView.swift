@@ -57,7 +57,10 @@ struct ImagePicker: UIViewControllerRepresentable {
             }
 
             let storageRef = Storage.storage().reference()
-            let imageRef = storageRef.child("images/\(UUID().uuidString).jpg")
+            let imageID = UUID().uuidString
+            let imageRef = storageRef.child("images/\(imageID).jpg")
+
+            let timestamp = Timestamp() // Skapa en timestamp för den aktuella tidpunkten
 
             imageRef.putData(imageData, metadata: nil) { metadata, error in
                 if let error = error {
@@ -71,14 +74,17 @@ struct ImagePicker: UIViewControllerRepresentable {
                         completion(.success(url))
                         let db = Firestore.firestore()
                         let imageURL = url.absoluteString
-                        let updateData: [String: Any] = [
-                            "images": FieldValue.arrayUnion([imageURL])
+                        let imageData: [String: Any] = [
+                            "url": imageURL,
+                            "timestamp": timestamp // Lägg till timestamp för bilden
                         ]
-                        db.collection("users").document(userID).updateData(updateData) { error in
+                        db.collection("users").document(userID).updateData([
+                            "images": FieldValue.arrayUnion([imageData])
+                        ]) { error in
                             if let error = error {
-                                print("Error saving image URL to Firestore: \(error.localizedDescription)")
+                                print("Error saving image data to Firestore: \(error.localizedDescription)")
                             } else {
-                                print("Image URL successfully added to Firestore array")
+                                print("Image data successfully added to Firestore")
                             }
                         }
                     }
