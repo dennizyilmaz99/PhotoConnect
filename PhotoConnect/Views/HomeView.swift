@@ -11,7 +11,6 @@ struct HomeView: View {
         VStack {
             Text("Flöde").font(.title).bold().frame(maxWidth: .infinity, alignment: .leading).padding()
 
-            // ScrollView for displaying user images
             ScrollView(.vertical, showsIndicators: false) {
                 ForEach(viewModel.userImages) { userImage in
                     VStack(alignment: .leading, spacing: 10) {
@@ -27,13 +26,6 @@ struct HomeView: View {
                             .padding(.leading, 20)
                     }
                 }
-            }
-
-            if let image = image {
-                Image(uiImage: image)
-                    .resizable()
-                    .scaledToFit()
-                    .frame(height: 300)
             }
             
             if !uploadStatus.isEmpty {
