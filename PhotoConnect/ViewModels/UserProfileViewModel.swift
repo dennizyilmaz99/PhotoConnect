@@ -55,31 +55,39 @@ class UserProfileViewModel: ObservableObject {
     func fetchImages() {
         guard let uid = Auth.auth().currentUser?.uid else { return }
 
+        print("Fetching images for user with UID: \(uid)")
+
         let db = Firestore.firestore()
-        db.collection("users").document(uid).collection("images").addSnapshotListener { (snapshot, error) in
+        db.collection("users").document(uid).getDocument { (document, error) in
             if let error = error {
-                print("Error fetching user images: \(error.localizedDescription)")
+                print("Error fetching user document: \(error.localizedDescription)")
                 return
             }
 
-            guard let snapshot = snapshot else {
-                print("No images found for user")
+            guard let document = document, document.exists else {
+                print("User document does not exist")
+                return
+            }
+
+            guard let imageData = document.data()?["images"] as? [[String: Any]] else {
+                print("No image data found in user document")
                 return
             }
 
             var newImages: [ImageItem] = []
 
-            for document in snapshot.documents {
-                let data = document.data()
-                if let imageName = data["name"] as? String,
-                   let timestamp = data["timestamp"] as? Timestamp {
+            for imageDataDict in imageData {
+                if let imageName = imageDataDict["url"] as? String,
+                   let timestamp = imageDataDict["timestamp"] as? Timestamp {
                     let newImage = ImageItem(imageName: imageName, timestamp: timestamp)
                     newImages.append(newImage)
+                } else {
+                    print("Error parsing image data")
                 }
             }
-            
+
             newImages.sort(by: { $0.timestamp.seconds > $1.timestamp.seconds })
-            
+
             DispatchQueue.main.async {
                 self.images = newImages
             }
