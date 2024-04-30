@@ -50,7 +50,6 @@ struct ProfileView: View {
                         }
                     }.padding()
                 }
-                //Test
             }
             Spacer()
         }
