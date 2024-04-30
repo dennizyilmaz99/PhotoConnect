@@ -58,13 +58,13 @@ class UserProfileViewModel: ObservableObject {
         print("Fetching images for user with UID: \(uid)")
 
         let db = Firestore.firestore()
-        db.collection("users").document(uid).getDocument { (document, error) in
+        userListener = db.collection("users").document(uid).addSnapshotListener { documentSnapshot, error in
             if let error = error {
                 print("Error fetching user document: \(error.localizedDescription)")
                 return
             }
 
-            guard let document = document, document.exists else {
+            guard let document = documentSnapshot, document.exists else {
                 print("User document does not exist")
                 return
             }
