@@ -11,44 +11,72 @@ struct ImageItem: Identifiable {
 class UserProfileViewModel: ObservableObject {
     @Published var images: [ImageItem] = []
     @Published var userName: String = ""
+    private var userListener: ListenerRegistration?
 
     init() {
         fetchImages()
         fetchUserName()
     }
-    
+
+    deinit {
+        unsubscribe()
+    }
+
     func fetchUserName() {
-            guard let uid = Auth.auth().currentUser?.uid else {
-                userName = "Ingen inloggad"
+        guard let uid = Auth.auth().currentUser?.uid else {
+            userName = "Ingen inloggad"
+            return
+        }
+
+        let db = Firestore.firestore()
+        userListener = db.collection("users").document(uid).addSnapshotListener { documentSnapshot, error in
+            if let error = error {
+                self.userName = "Anonym användare"
+                print("Error fetching user document: \(error.localizedDescription)")
                 return
             }
 
-            let db = Firestore.firestore()
-            db.collection("users").document(uid).getDocument { document, error in
-                if let document = document, document.exists {
-                    self.userName = document.data()?["name"] as? String ?? "Anonym användare"
-                } else {
-                    self.userName = "Anonym användare"
-                    print("Document does not exist or error: \(error?.localizedDescription ?? "Unknown error")")
-                }
+            guard let document = documentSnapshot, document.exists else {
+                self.userName = "Anonym användare"
+                print("User document does not exist")
+                return
+            }
+
+            if let data = document.data() {
+                self.userName = data["name"] as? String ?? "Anonym användare"
+            } else {
+                self.userName = "Anonym användare"
+                print("User document is empty")
             }
         }
+    }
 
     func fetchImages() {
         guard let uid = Auth.auth().currentUser?.uid else { return }
-        
+
         let db = Firestore.firestore()
         db.collection("users").document(uid).getDocument { (document, error) in
-            if let document = document, document.exists {
-                let data = document.data()
-                if let imageURLs = data?["images"] as? [String] {  // Kontrollerar om det finns en lista av URL:er
-                    DispatchQueue.main.async {
-                        self.images = imageURLs.map { ImageItem(imageName: $0) }
-                    }
+            if let error = error {
+                print("Error fetching user document: \(error.localizedDescription)")
+                return
+            }
+
+            guard let document = document, document.exists else {
+                print("User document does not exist")
+                return
+            }
+
+            if let data = document.data(), let imageURLs = data["images"] as? [String] {
+                DispatchQueue.main.async {
+                    self.images = imageURLs.map { ImageItem(imageName: $0) }
                 }
             } else {
-                print("Document does not exist")
+                print("No image URLs found in user document")
             }
         }
+    }
+
+    private func unsubscribe() {
+        userListener?.remove()
     }
 }
