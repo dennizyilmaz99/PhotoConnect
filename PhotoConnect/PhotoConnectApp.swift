@@ -19,9 +19,9 @@ struct PhotoConnect: App {
     var body: some Scene {
         WindowGroup {
             if authViewModel.isUserAuthenticated {
-                HomeScreen() // Din huvudvy efter inloggning
+                HomeScreen()
             } else {
-                LandingScreen() // Din inloggningsvy
+                LandingScreen()
             }
         }
     }

@@ -2,10 +2,10 @@ import SwiftUI
 import FirebaseFirestore
 
 struct UserImage: Identifiable {
-    let id: String  // Använd UUID eller bildens unika identifierare
+    let id: String
     let userName: String
     let imageURL: String
-    let timestamp: Timestamp // Lägg till timestamp
+    let timestamp: Timestamp
 }
 
 
@@ -18,7 +18,7 @@ class HomeViewViewModel: ObservableObject {
     }
 
     func fetchAllUserImages() {
-        guard userImages.isEmpty else { return }  // Endast hämta om listan är tom
+        guard userImages.isEmpty else { return }
 
         let db = Firestore.firestore()
         listener = db.collection("users").addSnapshotListener { snapshot, error in
@@ -49,7 +49,6 @@ class HomeViewViewModel: ObservableObject {
                 }
             }
             
-            // Sortera listan baserat på timestamp (senaste först)
             newImages.sort(by: { $0.timestamp.seconds > $1.timestamp.seconds })
             
             DispatchQueue.main.async {

@@ -62,12 +62,11 @@ struct HomeView: View {
             }
         }
         .onAppear {
-            viewModel.fetchAllUserImages()  // Load the images when the view appears
+            viewModel.fetchAllUserImages()
         }
     }
 }
 
-// Assuming you have the appropriate ImagePicker and ViewModel setup as discussed in previous messages.
 #Preview {
     HomeView()
 }

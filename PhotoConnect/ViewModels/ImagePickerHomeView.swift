@@ -16,7 +16,6 @@ struct ImagePicker: UIViewControllerRepresentable {
     }
 
     func updateUIViewController(_ uiViewController: UIImagePickerController, context: Context) {
-        // Ingen uppdatering krävs
     }
 
     func makeCoordinator() -> Coordinator {
@@ -60,7 +59,7 @@ struct ImagePicker: UIViewControllerRepresentable {
             let imageID = UUID().uuidString
             let imageRef = storageRef.child("images/\(imageID).jpg")
 
-            let timestamp = Timestamp() // Skapa en timestamp för den aktuella tidpunkten
+            let timestamp = Timestamp()
 
             imageRef.putData(imageData, metadata: nil) { metadata, error in
                 if let error = error {
@@ -76,7 +75,7 @@ struct ImagePicker: UIViewControllerRepresentable {
                         let imageURL = url.absoluteString
                         let imageData: [String: Any] = [
                             "url": imageURL,
-                            "timestamp": timestamp // Lägg till timestamp för bilden
+                            "timestamp": timestamp
                         ]
                         db.collection("users").document(userID).updateData([
                             "images": FieldValue.arrayUnion([imageData])
