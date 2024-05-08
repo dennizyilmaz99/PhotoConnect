@@ -18,8 +18,8 @@ struct ProfileView: View {
                     print("Settings icon clicked")
                     showModal = true
                 }) {
-                    Image(systemName: "gear")
-                        .font(.title)
+                    Image(systemName: "rectangle.portrait.and.arrow.right")
+                        .font(.title2)
                         .foregroundColor(.blue).padding()
                 }
             }.sheet(isPresented: $showModal) {
@@ -27,7 +27,7 @@ struct ProfileView: View {
             }
             
             VStack {
-                Text("Dina bilder")
+                Text("Ditt galleri")
                     .font(.headline).bold()
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .padding(.horizontal)

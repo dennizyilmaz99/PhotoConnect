@@ -16,9 +16,12 @@ struct LandingScreen: View {
 
 private struct Header: View {
     var body: some View {
-        VStack{
-            Text("Välkommen till").font(.title).bold()
-            Text("PhotoConnect").font(.title).bold()
+        HStack {
+            VStack(alignment: .leading) {
+                Text("Photo").font(.system(size: 84)).fontWeight(.thin)
+                Text("Connect").font(.system(size: 84)).bold()
+            }
+            Spacer()
         }
     }
 }
@@ -32,11 +35,12 @@ private struct ButtonContainer: View {
                     isNavigating = true
                 }, label: {
                     Rectangle()
-                        .foregroundStyle(.blue)
-                        .frame(width: 225, height: 55)
-                        .clipShape(RoundedRectangle(cornerRadius: 10))
+                        .foregroundStyle(.white)
+                        .frame(width: 225, height: 60)
+                        .clipShape(RoundedRectangle(cornerRadius: 30))
+                        .shadow(color: .gray, radius: 20, x: 0, y: 10).opacity(0.2)
                         .overlay {
-                            Text("Skapa dina minnen").foregroundStyle(.white)
+                            Text("Skapa dina minnen").foregroundStyle(.black).fontWeight(.medium)
                         }
                 })
             }
