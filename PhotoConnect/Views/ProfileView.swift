@@ -6,7 +6,9 @@ import SDWebImageSwiftUI
 struct ProfileView: View {
     @StateObject private var viewModel = UserProfileViewModel()
     @State private var showModal: Bool = false
-
+    @State private var showAlert = false
+    @State private var alertMessage = ""
+    
     var body: some View {
         VStack {
             HStack {
@@ -15,17 +17,21 @@ struct ProfileView: View {
                     .padding()
                 
                 Button(action: {
-                    print("Settings icon clicked")
-                    showModal = true
+                    alertMessage = "Är du säker att du vill logga ut?"
+                    showAlert = true
                 }) {
                     Image(systemName: "rectangle.portrait.and.arrow.right")
                         .font(.title2)
                         .foregroundColor(.blue).padding()
+                }.alert(isPresented: $showAlert) {
+                    Alert(title: Text("Bekräfta"),
+                          message: Text(alertMessage),
+                          primaryButton: .destructive(Text("Logga ut")) {
+                        logOut()
+                    },
+                          secondaryButton: .cancel())
                 }
-            }.sheet(isPresented: $showModal) {
-                ModalView()
             }
-            
             VStack {
                 Text("Ditt galleri")
                     .font(.headline).bold()
@@ -54,25 +60,6 @@ struct ProfileView: View {
             Spacer()
         }
     }
-}
-
-private struct ModalView: View {
-    var body: some View {
-        VStack {
-            Text("Settings")
-                .font(.title3).bold()
-                .padding()
-            Spacer()
-            Button(action: logOut) {
-                Text("Logga ut")
-                    .foregroundColor(.white)
-                    .padding()
-                    .background(Color.red)
-                    .cornerRadius(10)
-            }
-        }
-    }
-    
     func logOut() {
         do {
             try Auth.auth().signOut()
@@ -83,7 +70,6 @@ private struct ModalView: View {
     }
 }
 
-// Preview
 #Preview {
     ProfileView()
 }

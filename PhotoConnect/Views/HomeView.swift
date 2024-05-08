@@ -10,7 +10,7 @@ struct HomeView: View {
     var body: some View {
         VStack {
             Text("Flöde").font(.title).bold().frame(maxWidth: .infinity, alignment: .leading).padding()
-
+            
             ScrollView(.vertical, showsIndicators: false) {
                 ForEach(viewModel.userImages) { userImage in
                     VStack(alignment: .leading, spacing: 10) {
@@ -46,7 +46,7 @@ struct HomeView: View {
                     .clipShape(Circle())
                     .overlay(
                         Circle()
-                        .stroke(Color.white, lineWidth: 5)
+                            .stroke(Color.white, lineWidth: 5)
                     )
                     .foregroundColor(.blue)
             }

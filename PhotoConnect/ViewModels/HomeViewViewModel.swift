@@ -12,28 +12,28 @@ struct UserImage: Identifiable {
 class HomeViewViewModel: ObservableObject {
     @Published var userImages: [UserImage] = []
     private var listener: ListenerRegistration?
-
+    
     deinit {
         unsubscribe()
     }
-
+    
     func fetchAllUserImages() {
         guard userImages.isEmpty else { return }
-
+        
         let db = Firestore.firestore()
         listener = db.collection("users").addSnapshotListener { snapshot, error in
             if let error = error {
                 print("Error fetching users: \(error.localizedDescription)")
                 return
             }
-
+            
             guard let snapshot = snapshot else {
                 print("No documents found")
                 return
             }
-
+            
             var newImages: [UserImage] = []
-
+            
             for document in snapshot.documents {
                 let data = document.data()
                 let userName = data["name"] as? String ?? "Unknown User"
@@ -56,7 +56,7 @@ class HomeViewViewModel: ObservableObject {
             }
         }
     }
-
+    
     private func unsubscribe() {
         listener?.remove()
     }

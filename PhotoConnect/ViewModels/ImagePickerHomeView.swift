@@ -14,32 +14,32 @@ struct ImagePicker: UIViewControllerRepresentable {
         picker.delegate = context.coordinator
         return picker
     }
-
+    
     func updateUIViewController(_ uiViewController: UIImagePickerController, context: Context) {
     }
-
+    
     func makeCoordinator() -> Coordinator {
         Coordinator(self, completion: completion)
     }
-
+    
     class Coordinator: NSObject, UINavigationControllerDelegate, UIImagePickerControllerDelegate {
         var parent: ImagePicker
         var completion: (Result<URL, Error>) -> Void
-
+        
         init(_ parent: ImagePicker, completion: @escaping (Result<URL, Error>) -> Void) {
             self.parent = parent
             self.completion = completion
         }
-
+        
         func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
             if let image = info[.originalImage] as? UIImage {
                 parent.image = image
                 uploadImageToFirebase(image, completion: completion)
             }
-
+            
             parent.presentationMode.wrappedValue.dismiss()
         }
-
+        
         func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
             parent.presentationMode.wrappedValue.dismiss()
         }
@@ -49,18 +49,18 @@ struct ImagePicker: UIViewControllerRepresentable {
                 completion(.failure(NSError(domain: "", code: -1, userInfo: [NSLocalizedDescriptionKey: "Image conversion to data failed"])))
                 return
             }
-
+            
             guard let userID = Auth.auth().currentUser?.uid else {
                 completion(.failure(NSError(domain: "", code: -2, userInfo: [NSLocalizedDescriptionKey: "User not logged in"])))
                 return
             }
-
+            
             let storageRef = Storage.storage().reference()
             let imageID = UUID().uuidString
             let imageRef = storageRef.child("images/\(imageID).jpg")
-
+            
             let timestamp = Timestamp()
-
+            
             imageRef.putData(imageData, metadata: nil) { metadata, error in
                 if let error = error {
                     completion(.failure(error))

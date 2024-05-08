@@ -4,15 +4,18 @@ import FirebaseAuth
 struct LoginScreen: View {
     @State private var email = ""
     @State private var password = ""
-
+    
     var body: some View {
         NavigationStack {
             VStack {
                 Spacer()
+                Text("Logga in").font(.largeTitle).bold()
+                Spacer()
                 TextFieldContainer(email: $email, password: $password)
                 ButtonContainer(email: $email, password: $password)
                 Spacer()
-            }.navigationTitle("Logga in").navigationBarTitleDisplayMode(.large)
+                Spacer()
+            }
         }
     }
 }
@@ -20,7 +23,7 @@ struct LoginScreen: View {
 private struct TextFieldContainer: View {
     @Binding var email: String
     @Binding var password: String
-
+    
     var body: some View {
         VStack {
             TextField("E-post", text: $email)
@@ -37,7 +40,7 @@ private struct ButtonContainer: View {
     @State private var isNavigating = false
     @State private var showAlert = false
     @State private var alertMessage = ""
-
+    
     var body: some View {
         VStack {
             Button(action: {
@@ -48,11 +51,14 @@ private struct ButtonContainer: View {
                     login(email: email, password: password)
                 }
             }, label: {
-                Text("Logga in")
-                    .foregroundColor(.white)
-                    .frame(width: 225, height: 55)
-                    .background(Color.blue)
-                    .clipShape(RoundedRectangle(cornerRadius: 10))
+                Rectangle()
+                    .foregroundStyle(.white)
+                    .frame(width: 225, height: 60)
+                    .clipShape(RoundedRectangle(cornerRadius: 30))
+                    .shadow(color: .gray, radius: 20, x: 0, y: 10).opacity(0.2)
+                    .overlay {
+                        Text("Logga in").foregroundStyle(.black).fontWeight(.medium)
+                    }
             })
             .alert(isPresented: $showAlert) {
                 Alert(title: Text("Fel"), message: Text(alertMessage), dismissButton: .default(Text("OK")))
@@ -62,7 +68,7 @@ private struct ButtonContainer: View {
             }
         }
     }
-
+    
     func login(email: String, password: String) {
         Auth.auth().signIn(withEmail: email, password: password) { authResult, error in
             if let error = error {
