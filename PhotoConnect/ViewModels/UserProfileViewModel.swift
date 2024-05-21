@@ -3,10 +3,14 @@ import FirebaseFirestore
 import FirebaseStorage
 import SwiftUI
 
-struct ImageItem: Identifiable {
+struct ImageItem: Identifiable, Equatable {
     let id = UUID()
     let imageName: String
     let timestamp: Timestamp
+    
+    static func ==(lhs: ImageItem, rhs: ImageItem) -> Bool {
+        return lhs.id == rhs.id
+    }
 }
 
 class UserProfileViewModel: ObservableObject {

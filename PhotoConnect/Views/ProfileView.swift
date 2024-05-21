@@ -10,6 +10,7 @@ struct ProfileView: View {
     @State private var alertMessage = ""
     @State private var selectedImage: ImageItem? = nil
     @State private var showFullScreenImage = false
+    @State private var longPressingImage: ImageItem? = nil
 
     var body: some View {
         VStack {
@@ -55,15 +56,22 @@ struct ProfileView: View {
                                 .frame(width: 115, height: 115)
                                 .clipped()
                                 .cornerRadius(10)
+                                .opacity(longPressingImage == image ? 0.5 : 1.0)
                                 .onTapGesture {
                                     selectedImage = image
                                     showFullScreenImage = true
                                     print("Selected image URL: \(image.imageName)")
                                 }
-                                .onLongPressGesture {
+                                .onLongPressGesture(minimumDuration: 0.5) {
                                     selectedImage = image
                                     alertMessage = "Är du säker på att du vill ta bort denna bild?"
                                     showDeletePicAlert = true
+                                } onPressingChanged: { isPressing in
+                                    if isPressing {
+                                        longPressingImage = image
+                                    } else {
+                                        longPressingImage = nil
+                                    }
                                 }
                         }
                     }.padding()
@@ -113,6 +121,9 @@ struct FullScreenImageView: View {
                     .background(Color.black)
                     .onTapGesture {
                         isPresented = false
+                    }
+                    .onAppear {
+                        print("Loading image from URL: \(url)")
                     }
             } else {
                 Text("Invalid URL")
