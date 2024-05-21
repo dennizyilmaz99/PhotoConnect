@@ -5,12 +5,20 @@ import SDWebImageSwiftUI
 
 struct ProfileView: View {
     @StateObject private var viewModel = UserProfileViewModel()
-    @State private var showLogOutAlert = false
-    @State private var showDeletePicAlert = false
+    @State private var alertType: AlertType? = nil
     @State private var alertMessage = ""
     @State private var selectedImage: ImageItem? = nil
     @State private var showFullScreenImage = false
     @State private var longPressingImage: ImageItem? = nil
+
+    enum AlertType: Identifiable {
+        case logOut
+        case deleteImage
+
+        var id: Int {
+            hashValue
+        }
+    }
 
     var body: some View {
         VStack {
@@ -21,18 +29,12 @@ struct ProfileView: View {
                 
                 Button(action: {
                     alertMessage = "Är du säker att du vill logga ut?"
-                    showLogOutAlert = true
+                    alertType = .logOut
+                    print("Log out button pressed, alertType set to \(String(describing: alertType))")
                 }) {
                     Image(systemName: "rectangle.portrait.and.arrow.right")
                         .font(.title2)
                         .foregroundColor(.blue).padding()
-                }.alert(isPresented: $showLogOutAlert) {
-                    Alert(title: Text("Är du säker?"),
-                          message: Text(alertMessage),
-                          primaryButton: .destructive(Text("Logga ut")) {
-                        logOut()
-                    },
-                          secondaryButton: .cancel())
                 }
             }
             VStack {
@@ -65,7 +67,7 @@ struct ProfileView: View {
                                 .onLongPressGesture(minimumDuration: 0.5) {
                                     selectedImage = image
                                     alertMessage = "Är du säker på att du vill ta bort denna bild?"
-                                    showDeletePicAlert = true
+                                    alertType = .deleteImage
                                 } onPressingChanged: { isPressing in
                                     if isPressing {
                                         longPressingImage = image
@@ -79,15 +81,25 @@ struct ProfileView: View {
             }
             Spacer()
         }
-        .alert(isPresented: $showDeletePicAlert) {
-            Alert(title: Text("Är du säker?"),
-                  message: Text(alertMessage),
-                  primaryButton: .destructive(Text("Ta bort")) {
-                if let image = selectedImage {
-                    viewModel.deleteImage(image: image)
-                }
-            },
-                  secondaryButton: .cancel())
+        .alert(item: $alertType) { alertType in
+            switch alertType {
+            case .logOut:
+                return Alert(title: Text("Är du säker?"),
+                             message: Text(alertMessage),
+                             primaryButton: .destructive(Text("Logga ut")) {
+                                logOut()
+                             },
+                             secondaryButton: .cancel())
+            case .deleteImage:
+                return Alert(title: Text("Är du säker?"),
+                             message: Text(alertMessage),
+                             primaryButton: .destructive(Text("Ta bort")) {
+                                if let image = selectedImage {
+                                    viewModel.deleteImage(image: image)
+                                }
+                             },
+                             secondaryButton: .cancel())
+            }
         }
         .fullScreenCover(isPresented: $showFullScreenImage) {
             if let image = selectedImage {
