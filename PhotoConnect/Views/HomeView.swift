@@ -36,7 +36,6 @@ struct HomeView: View {
             
             Button(action: {
                 showingImagePicker = true
-                print("Upload button tapped")
             }) {
                 Image(systemName: "arrow.up.circle.fill")
                     .resizable()
@@ -56,7 +55,7 @@ struct HomeView: View {
             ImagePicker(image: $image) { result in
                 switch result {
                 case .success(let url):
-                    viewModel.fetchAllUserImages()  // Refresh the images after upload
+                    viewModel.fetchAllUserImages()
                 case .failure(let error): break
                 }
             }

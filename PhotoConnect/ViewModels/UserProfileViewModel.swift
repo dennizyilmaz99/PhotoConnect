@@ -1,5 +1,6 @@
 import FirebaseAuth
 import FirebaseFirestore
+import FirebaseStorage
 import SwiftUI
 
 struct ImageItem: Identifiable {
@@ -7,7 +8,6 @@ struct ImageItem: Identifiable {
     let imageName: String
     let timestamp: Timestamp
 }
-
 
 class UserProfileViewModel: ObservableObject {
     @Published var images: [ImageItem] = []
@@ -90,6 +90,33 @@ class UserProfileViewModel: ObservableObject {
             
             DispatchQueue.main.async {
                 self.images = newImages
+            }
+        }
+    }
+    
+    func deleteImage(image: ImageItem) {
+        guard let uid = Auth.auth().currentUser?.uid else { return }
+
+        let storageRef = Storage.storage().reference(forURL: image.imageName)
+        
+        storageRef.delete { error in
+            if let error = error {
+                print("Error deleting image from storage: \(error.localizedDescription)")
+                return
+            }
+
+            let db = Firestore.firestore()
+            db.collection("users").document(uid).updateData([
+                "images": FieldValue.arrayRemove([["url": image.imageName, "timestamp": image.timestamp]])
+            ]) { error in
+                if let error = error {
+                    print("Error deleting image from Firestore: \(error.localizedDescription)")
+                    return
+                }
+
+                DispatchQueue.main.async {
+                    self.images.removeAll { $0.id == image.id }
+                }
             }
         }
     }
