@@ -48,6 +48,7 @@ private struct Footer: View {
             }, label: {
                 Text("Logga in")
             }).navigationDestination(isPresented: $isNavigating) {
+                
                 LoginScreen()
             }
         }
@@ -102,7 +103,7 @@ private struct ButtonContainer: View {
                 Alert(title: Text("Fel"), message: Text(alertMessage), dismissButton: .default(Text("OK")))
             }
             .navigationDestination(isPresented: $isNavigating) {
-                LoginScreen()
+                HomeScreen()
             }
         }.navigationBarBackButtonHidden()
     }

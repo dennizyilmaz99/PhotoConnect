@@ -50,34 +50,35 @@ struct ProfileView: View {
                 ]
                 
                 ScrollView {
-                    LazyVGrid(columns: columns, spacing: 10) {
-                        ForEach(viewModel.images) { image in
-                            WebImage(url: URL(string: image.imageName))
-                                .resizable()
-                                .scaledToFill()
-                                .frame(width: 115, height: 115)
-                                .clipped()
-                                .cornerRadius(10)
-                                .opacity(longPressingImage == image ? 0.5 : 1.0)
-                                .onTapGesture {
-                                    selectedImage = image
-                                    showFullScreenImage = true
-                                    print("Selected image URL: \(image.imageName)")
-                                }
-                                .onLongPressGesture(minimumDuration: 0.5) {
-                                    selectedImage = image
-                                    alertMessage = "Är du säker på att du vill ta bort denna bild?"
-                                    alertType = .deleteImage
-                                } onPressingChanged: { isPressing in
-                                    if isPressing {
-                                        longPressingImage = image
-                                    } else {
-                                        longPressingImage = nil
+                                LazyVGrid(columns: columns, spacing: 10) {
+                                    ForEach(viewModel.images) { image in
+                                        WebImage(url: URL(string: image.imageName))
+                                            .resizable()
+                                            .scaledToFill()
+                                            .frame(width: 115, height: 115)
+                                            .clipped()
+                                            .cornerRadius(10)
+                                            .opacity(longPressingImage == image ? 0.5 : 1.0)
+                                            .contentShape(Rectangle())
+                                            .onTapGesture {
+                                                selectedImage = image
+                                                showFullScreenImage = true
+                                                print("Selected image URL: \(image.imageName)")
+                                            }
+                                            .onLongPressGesture(minimumDuration: 0.5) {
+                                                selectedImage = image
+                                                alertMessage = "Är du säker på att du vill ta bort denna bild?"
+                                                alertType = .deleteImage
+                                            } onPressingChanged: { isPressing in
+                                                if isPressing {
+                                                    longPressingImage = image
+                                                } else {
+                                                    longPressingImage = nil
+                                                }
+                                            }
                                     }
-                                }
-                        }
-                    }.padding()
-                }
+                                }.padding()
+                            }
             }
             Spacer()
         }

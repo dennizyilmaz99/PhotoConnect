@@ -1,19 +1,86 @@
 import SwiftUI
-import FirebaseAuth
 
 struct HomeScreen: View {
+    @State private var selectedTab = 0
+    @State private var previousTab = 0
+    @State private var scaleEffect: CGFloat = 1.0
+    @State private var isFetched = false
+
+    
     var body: some View {
-        TabView {
-            HomeView()
-                .tabItem {
-                    Label("Hem", systemImage: "house")
+        VStack(spacing: 0) {
+            GeometryReader { geometry in
+                ZStack {
+                    if selectedTab == 0 {
+                        HomeView(isFetched: $isFetched)
+                            .transition(.push(from: .trailing))
+                            .id(selectedTab)
+                    } else if selectedTab == 1 {
+                        ProfileView()
+                            .transition(.push(from: .trailing))
+                            .id(selectedTab)
+                    }
                 }
+                .frame(width: geometry.size.width, height: geometry.size.height)
+            }
             
-            ProfileView()
-                .tabItem {
-                    Label("Profil", systemImage: "person")
+            HStack {
+                Spacer()
+                
+                Button(action: {
+                    if selectedTab != 0 {
+                        withAnimation {
+                            previousTab = selectedTab
+                            selectedTab = 0
+                            scaleEffect = 1.5
+                        }
+                        withAnimation(.easeInOut(duration: 0.1).delay(0.1)) {
+                            scaleEffect = 1.0
+                        }
+                    }
+                }) {
+                    VStack {
+                        Image(systemName: "house.fill")
+                            .font(.system(size: 22))
+                            .scaleEffect(selectedTab == 0 ? scaleEffect : 1.0).padding(.bottom, 2)
+                        Text("Hem").font(.system(size: 12))
+                    }
+                    .padding()
+                    .foregroundColor(selectedTab == 0 ? .blue : .gray)
                 }
-        }.navigationBarBackButtonHidden()
+                .disabled(selectedTab == 0)
+                
+                Spacer()
+                
+                Button(action: {
+                    if selectedTab != 1 {
+                        withAnimation {
+                            previousTab = selectedTab
+                            selectedTab = 1
+                            scaleEffect = 1.5
+                        }
+                        withAnimation(.easeInOut(duration: 0.1).delay(0.1)) {
+                            scaleEffect = 1.0
+                        }
+                    }
+                }) {
+                    VStack {
+                        Image(systemName: "person.fill")
+                            .font(.system(size: 22))
+                            .scaleEffect(selectedTab == 1 ? scaleEffect : 1.0).padding(.bottom, 2)
+                        Text("Profil").font(.system(size: 12))
+                    }
+                    .padding()
+                    .foregroundColor(selectedTab == 1 ? .blue : .gray)
+                }
+                .disabled(selectedTab == 1)
+                
+                Spacer()
+            }
+            .background(Color(.white))
+            .frame(height: 50)
+        }
+        .navigationBarBackButtonHidden()
     }
 }
 

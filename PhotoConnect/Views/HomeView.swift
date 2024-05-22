@@ -5,35 +5,48 @@ struct HomeView: View {
     @StateObject private var viewModel = HomeViewViewModel()
     @State private var image: UIImage?
     @State private var showingImagePicker = false
-    @State private var uploadStatus: String = ""
+    @State private var isSkeletonVisible = false
+    @Binding var isFetched: Bool
     
     var body: some View {
         VStack {
-            Text("Flöde").font(.title).bold().frame(maxWidth: .infinity, alignment: .leading).padding()
-            
-            ScrollView(.vertical, showsIndicators: false) {
-                ForEach(viewModel.userImages) { userImage in
-                    VStack(alignment: .leading, spacing: 10) {
-                        WebImage(url: URL(string: userImage.imageURL))
-                            .resizable()
-                            .aspectRatio(contentMode: .fill)
-                            .frame(width: UIScreen.main.bounds.width - 40, height: UIScreen.main.bounds.height * 0.4)
-                            .cornerRadius(10)
+            VStack {
+                Text("Flöde")
+                    .font(.title)
+                    .bold()
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding()
+
+                ScrollView(.vertical, showsIndicators: false) {
+                    if isSkeletonVisible {
+                        SkeletonView()
                             .padding(.horizontal)
-                        
-                        Text(userImage.userName)
-                            .font(.headline)
-                            .padding(.leading, 20)
+                    }
+
+                    if !isFetched {
+                        ForEach(0..<5) { _ in
+                            SkeletonView()
+                                .padding(.horizontal)
+                        }
+                    } else {
+                        ForEach(viewModel.userImages) { userImage in
+                            VStack(alignment: .leading, spacing: 10) {
+                                Text(userImage.userName)
+                                    .font(.headline)
+                                    .padding(.leading, 10)
+                                
+                                WebImage(url: URL(string: userImage.imageURL))
+                                    .resizable()
+                                    .aspectRatio(contentMode: .fill)
+                                    .frame(width: UIScreen.main.bounds.width - 30, height: UIScreen.main.bounds.height * 0.5)
+                                    .cornerRadius(10)
+                                    .padding(.bottom, 25)
+                            }
+                        }
                     }
                 }
             }
-            
-            if !uploadStatus.isEmpty {
-                Text(uploadStatus)
-            }
-            
-            Spacer()
-            
+
             Button(action: {
                 showingImagePicker = true
             }) {
@@ -49,23 +62,87 @@ struct HomeView: View {
                     )
                     .foregroundColor(.blue)
             }
-            .offset(y: -22)
+            .offset(y: -20)
         }
         .sheet(isPresented: $showingImagePicker) {
-            ImagePicker(image: $image) { result in
-                switch result {
-                case .success(let url):
-                    viewModel.fetchAllUserImages()
-                case .failure(let error): break
+                    ImagePicker(image: $image) { result in
+                        switch result {
+                        case .success:
+                            isSkeletonVisible = true
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                                viewModel.fetchAllUserImages()
+                            }
+                        case .failure(let error):
+                            print("Image picker error: \(error)")
+                        }
+                    }
                 }
-            }
-        }
-        .onAppear {
-            viewModel.fetchAllUserImages()
-        }
+                .onAppear {
+                    print("isFetched: \(isFetched)")
+                    if !isFetched {
+                        print("hämtar bilden 1")
+                        isSkeletonVisible = true
+                        viewModel.fetchAllUserImages()
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                            isFetched = true
+                            print("isFetched: \(isFetched)")
+                            isSkeletonVisible = false
+                        }
+                    } else {
+                        viewModel.fetchAllUserImages()
+                    }
+                }
+                .onChange(of: image) { newImage in
+                    if newImage != nil {
+                        isSkeletonVisible = true
+                    }
+                }
+                .onReceive(viewModel.$userImages) { _ in
+                    isSkeletonVisible = false
+                }
     }
 }
 
-#Preview {
-    HomeView()
+struct SkeletonView: View {
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            RoundedRectangle(cornerRadius: 10)
+                .fill(Color.gray.opacity(0.3))
+                .frame(width: 150, height: 20)
+                .padding(.leading)
+            
+            RoundedRectangle(cornerRadius: 10)
+                .fill(Color.gray.opacity(0.3))
+                .frame(width: UIScreen.main.bounds.width - 30, height: UIScreen.main.bounds.height * 0.5)
+                .padding(.bottom, 25)
+
+            
+        }
+        .shimmer()
+    }
+}
+
+extension View {
+    func shimmer() -> some View {
+        self.modifier(ShimmerEffect())
+    }
+}
+
+struct ShimmerEffect: ViewModifier {
+    @State private var phase: CGFloat = 0.0
+
+    func body(content: Content) -> some View {
+        content
+            .overlay(
+                LinearGradient(gradient: Gradient(colors: [Color.clear, Color.white.opacity(0.6), Color.clear]), startPoint: .leading, endPoint: .trailing)
+                    .rotationEffect(.degrees(30))
+                    .offset(x: phase * UIScreen.main.bounds.width)
+                    .mask(content)
+            )
+            .onAppear {
+                withAnimation(Animation.linear(duration: 1.5).repeatForever(autoreverses: false)) {
+                    phase = 2.0
+                }
+            }
+    }
 }
