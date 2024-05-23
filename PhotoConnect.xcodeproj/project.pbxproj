@@ -20,6 +20,9 @@
 		59093EE42BDFEF4C00064FC8 /* HomeViewViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 59093EE32BDFEF4C00064FC8 /* HomeViewViewModel.swift */; };
 		593CE0842BFFAA5A00015515 /* FollowerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 593CE0832BFFAA5A00015515 /* FollowerView.swift */; };
 		593CE0862BFFAA6600015515 /* FollowingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 593CE0852BFFAA6600015515 /* FollowingView.swift */; };
+		593CE0882BFFB22800015515 /* SearchUserView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 593CE0872BFFB22800015515 /* SearchUserView.swift */; };
+		593CE08A2BFFBB8A00015515 /* SearchUserViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 593CE0892BFFBB8A00015515 /* SearchUserViewModel.swift */; };
+		593CE08C2BFFC99700015515 /* FollowerViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 593CE08B2BFFC99700015515 /* FollowerViewModel.swift */; };
 		59DDAD102B4994F500183180 /* PhotoConnectApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 59DDAD0F2B4994F500183180 /* PhotoConnectApp.swift */; };
 		59DDAD122B4994F500183180 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 59DDAD112B4994F500183180 /* ContentView.swift */; };
 		59DDAD142B4994F700183180 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 59DDAD132B4994F700183180 /* Assets.xcassets */; };
@@ -60,6 +63,9 @@
 		59093EE32BDFEF4C00064FC8 /* HomeViewViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeViewViewModel.swift; sourceTree = "<group>"; };
 		593CE0832BFFAA5A00015515 /* FollowerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FollowerView.swift; sourceTree = "<group>"; };
 		593CE0852BFFAA6600015515 /* FollowingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FollowingView.swift; sourceTree = "<group>"; };
+		593CE0872BFFB22800015515 /* SearchUserView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchUserView.swift; sourceTree = "<group>"; };
+		593CE0892BFFBB8A00015515 /* SearchUserViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchUserViewModel.swift; sourceTree = "<group>"; };
+		593CE08B2BFFC99700015515 /* FollowerViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FollowerViewModel.swift; sourceTree = "<group>"; };
 		59DDAD0C2B4994F500183180 /* PhotoConnect.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PhotoConnect.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		59DDAD0F2B4994F500183180 /* PhotoConnectApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoConnectApp.swift; sourceTree = "<group>"; };
 		59DDAD112B4994F500183180 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -119,6 +125,7 @@
 				59093ED72BD5473200064FC8 /* ProfileView.swift */,
 				593CE0832BFFAA5A00015515 /* FollowerView.swift */,
 				593CE0852BFFAA6600015515 /* FollowingView.swift */,
+				593CE0872BFFB22800015515 /* SearchUserView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -130,6 +137,8 @@
 				59093EDA2BD54E3200064FC8 /* UserProfileViewModel.swift */,
 				59093EE12BDFEEAD00064FC8 /* ImagePickerHomeView.swift */,
 				59093EE32BDFEF4C00064FC8 /* HomeViewViewModel.swift */,
+				593CE0892BFFBB8A00015515 /* SearchUserViewModel.swift */,
+				593CE08B2BFFC99700015515 /* FollowerViewModel.swift */,
 			);
 			path = ViewModels;
 			sourceTree = "<group>";
@@ -348,10 +357,12 @@
 			buildActionMask = 2147483647;
 			files = (
 				59DDAD122B4994F500183180 /* ContentView.swift in Sources */,
+				593CE08C2BFFC99700015515 /* FollowerViewModel.swift in Sources */,
 				59093ED82BD5473200064FC8 /* ProfileView.swift in Sources */,
 				59DDAD412B4997DE00183180 /* CreateAccScreen.swift in Sources */,
 				59DDAD102B4994F500183180 /* PhotoConnectApp.swift in Sources */,
 				59093ED32BD530CC00064FC8 /* AuthViewModel.swift in Sources */,
+				593CE08A2BFFBB8A00015515 /* SearchUserViewModel.swift in Sources */,
 				59DDAD3A2B49977000183180 /* HomeScreen.swift in Sources */,
 				59093ED62BD5472400064FC8 /* HomeView.swift in Sources */,
 				593CE0842BFFAA5A00015515 /* FollowerView.swift in Sources */,
@@ -359,6 +370,7 @@
 				59DDAD3D2B49979300183180 /* LandingScreen.swift in Sources */,
 				59093EE22BDFEEAD00064FC8 /* ImagePickerHomeView.swift in Sources */,
 				59093EE42BDFEF4C00064FC8 /* HomeViewViewModel.swift in Sources */,
+				593CE0882BFFB22800015515 /* SearchUserView.swift in Sources */,
 				593CE0862BFFAA6600015515 /* FollowingView.swift in Sources */,
 				59DDAD3F2B4997CF00183180 /* LoginScreen.swift in Sources */,
 			);

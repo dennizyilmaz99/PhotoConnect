@@ -1,5 +1,6 @@
 import SwiftUI
 import FirebaseFirestore
+import FirebaseAuth
 
 struct UserImage: Identifiable {
     let id: String
@@ -10,51 +11,82 @@ struct UserImage: Identifiable {
 
 class HomeViewViewModel: ObservableObject {
     @Published var userImages: [UserImage] = []
-    private var listener: ListenerRegistration?
-    
+    private var db = Firestore.firestore()
+    private var auth = Auth.auth()
+
     deinit {
         unsubscribe()
     }
-    
-    func fetchAllUserImages() {
-        let db = Firestore.firestore()
-        listener = db.collection("users").addSnapshotListener { snapshot, error in
+
+    func fetchFollowersPicture() {
+        guard let currentUserID = auth.currentUser?.uid else {
+            print("Error: Current user ID is nil")
+            return
+        }
+
+        print("Current User ID: \(currentUserID)")
+
+        db.collection("users").document(currentUserID).collection("following").getDocuments { [weak self] snapshot, error in
             if let error = error {
-                print("Error fetching users: \(error.localizedDescription)")
+                print("Error fetching followed users: \(error.localizedDescription)")
                 return
             }
-            
-            guard let snapshot = snapshot else {
-                print("No documents found")
-                return
+
+            var userIDs = [currentUserID] // Include current user ID
+            if let documents = snapshot?.documents {
+                userIDs.append(contentsOf: documents.map { $0.documentID })
             }
-            
-            var newImages: [UserImage] = []
-            
-            for document in snapshot.documents {
-                let data = document.data()
-                let userName = data["name"] as? String ?? "Unknown User"
-                
-                if let imagesData = data["images"] as? [[String: Any]] {
-                    for imageData in imagesData {
-                        if let imageURL = imageData["url"] as? String,
-                           let timestamp = imageData["timestamp"] as? Timestamp {
-                            let newImage = UserImage(id: UUID().uuidString, userName: userName, imageURL: imageURL, timestamp: timestamp)
-                            newImages.append(newImage)
-                        }
-                    }
-                }
-            }
-            
-            newImages.sort(by: { $0.timestamp.dateValue() > $1.timestamp.dateValue() })
-            
-            DispatchQueue.main.async {
-                self.userImages = newImages
+
+            print("Fetched followed user IDs: \(userIDs)")
+
+            if !userIDs.isEmpty {
+                self?.fetchImages(for: userIDs)
+            } else {
+                print("User is not following anyone")
+                self?.userImages = []
             }
         }
     }
-    
+
+    private func fetchImages(for userIDs: [String]) {
+        let dispatchGroup = DispatchGroup()
+        var allImages: [UserImage] = []
+
+        for userID in userIDs {
+            dispatchGroup.enter()
+            db.collection("users").document(userID).getDocument { [weak self] documentSnapshot, error in
+                defer { dispatchGroup.leave() }
+
+                if let error = error {
+                    print("Error fetching user document: \(error.localizedDescription)")
+                    return
+                }
+
+                guard let document = documentSnapshot, let data = document.data(), let userName = data["name"] as? String else {
+                    print("User document is missing required data")
+                    return
+                }
+
+                if let images = data["images"] as? [[String: Any]] {
+                    let userImages = images.compactMap { imageDict -> UserImage? in
+                        guard let imageURL = imageDict["url"] as? String,
+                              let timestamp = imageDict["timestamp"] as? Timestamp else {
+                            return nil
+                        }
+                        return UserImage(id: UUID().uuidString, userName: userName, imageURL: imageURL, timestamp: timestamp)
+                    }
+                    allImages.append(contentsOf: userImages)
+                }
+            }
+        }
+
+        dispatchGroup.notify(queue: .main) {
+            self.userImages = allImages.sorted(by: { $0.timestamp.seconds > $1.timestamp.seconds })
+            print("Final userImages count: \(self.userImages.count)")
+        }
+    }
+
     private func unsubscribe() {
-        listener?.remove()
+        // Implement unsubscribe logic if needed
     }
 }

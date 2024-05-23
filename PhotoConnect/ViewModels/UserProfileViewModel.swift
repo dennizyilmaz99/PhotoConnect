@@ -16,24 +16,30 @@ struct ImageItem: Identifiable, Equatable {
 class UserProfileViewModel: ObservableObject {
     @Published var images: [ImageItem] = []
     @Published var userName: String = ""
-    private var userListener: ListenerRegistration?
+    @Published var followersCount: Int = 0
+    @Published var followingCount: Int = 0
     
+    private var userListener: ListenerRegistration?
+    private var db = Firestore.firestore()
+    private var auth = Auth.auth()
+
     init() {
-        fetchImages()
         fetchUserName()
+        fetchImages()
+        fetchFollowerCount()
+        fetchFollowingCount()
     }
     
     deinit {
         unsubscribe()
     }
-    
+
     func fetchUserName() {
-        guard let uid = Auth.auth().currentUser?.uid else {
+        guard let uid = auth.currentUser?.uid else {
             userName = "Ingen inloggad"
             return
         }
         
-        let db = Firestore.firestore()
         userListener = db.collection("users").document(uid).addSnapshotListener { documentSnapshot, error in
             if let error = error {
                 self.userName = "Anonym användare"
@@ -55,14 +61,13 @@ class UserProfileViewModel: ObservableObject {
             }
         }
     }
-    
+
     func fetchImages() {
-        guard let uid = Auth.auth().currentUser?.uid else { return }
+        guard let uid = auth.currentUser?.uid else { return }
         
-        print("Fetching images for user with UID: \(uid)")
+        let userRef = db.collection("users").document(uid)
         
-        let db = Firestore.firestore()
-        userListener = db.collection("users").document(uid).addSnapshotListener { documentSnapshot, error in
+        userRef.addSnapshotListener { documentSnapshot, error in
             if let error = error {
                 print("Error fetching user document: \(error.localizedDescription)")
                 return
@@ -97,9 +102,35 @@ class UserProfileViewModel: ObservableObject {
             }
         }
     }
+
+    func fetchFollowerCount() {
+        guard let uid = auth.currentUser?.uid else { return }
+
+        db.collection("users").document(uid).collection("followers").addSnapshotListener { snapshot, error in
+            if let error = error {
+                print("Error fetching followers: \(error.localizedDescription)")
+                return
+            }
+
+            self.followersCount = snapshot?.documents.count ?? 0
+        }
+    }
+
+    func fetchFollowingCount() {
+        guard let uid = auth.currentUser?.uid else { return }
+
+        db.collection("users").document(uid).collection("following").addSnapshotListener { snapshot, error in
+            if let error = error {
+                print("Error fetching following: \(error.localizedDescription)")
+                return
+            }
+
+            self.followingCount = snapshot?.documents.count ?? 0
+        }
+    }
     
     func deleteImage(image: ImageItem) {
-        guard let uid = Auth.auth().currentUser?.uid else { return }
+        guard let uid = auth.currentUser?.uid else { return }
 
         let storageRef = Storage.storage().reference(forURL: image.imageName)
         
@@ -109,8 +140,7 @@ class UserProfileViewModel: ObservableObject {
                 return
             }
 
-            let db = Firestore.firestore()
-            db.collection("users").document(uid).updateData([
+            self.db.collection("users").document(uid).updateData([
                 "images": FieldValue.arrayRemove([["url": image.imageName, "timestamp": image.timestamp]])
             ]) { error in
                 if let error = error {
@@ -124,7 +154,7 @@ class UserProfileViewModel: ObservableObject {
             }
         }
     }
-    
+
     private func unsubscribe() {
         userListener?.remove()
     }

@@ -13,11 +13,13 @@ struct HomeScreen: View {
                 ZStack {
                     if selectedTab == 0 {
                         HomeView(isFetched: $isFetched)
-                            .transition(.push(from: .trailing))
+                            .transition(.push(from: .leading))
                             .id(selectedTab)
                     } else if selectedTab == 1 {
+                        SearchUserView().transition(.push(from: .leading))
+                    } else if selectedTab == 2 {
                         ProfileView()
-                            .transition(.push(from: .trailing))
+                            .transition(.push(from: .leading))
                             .id(selectedTab)
                     }
                 }
@@ -65,15 +67,40 @@ struct HomeScreen: View {
                     }
                 }) {
                     VStack {
-                        Image(systemName: "person.fill")
+                        Image(systemName: "magnifyingglass")
                             .font(.system(size: 22))
                             .scaleEffect(selectedTab == 1 ? scaleEffect : 1.0).padding(.bottom, 2)
-                        Text("Profil").font(.system(size: 12))
+                        Text("Sök").font(.system(size: 12))
                     }
                     .padding()
                     .foregroundColor(selectedTab == 1 ? .blue : .gray)
                 }
                 .disabled(selectedTab == 1)
+                
+                Spacer()
+                
+                Button(action: {
+                    if selectedTab != 2 {
+                        withAnimation {
+                            previousTab = selectedTab
+                            selectedTab = 2
+                            scaleEffect = 1.5
+                        }
+                        withAnimation(.easeInOut(duration: 0.1).delay(0.1)) {
+                            scaleEffect = 1.0
+                        }
+                    }
+                }) {
+                    VStack {
+                        Image(systemName: "person.fill")
+                            .font(.system(size: 22))
+                            .scaleEffect(selectedTab == 2 ? scaleEffect : 1.0).padding(.bottom, 2)
+                        Text("Profil").font(.system(size: 12))
+                    }
+                    .padding()
+                    .foregroundColor(selectedTab == 2 ? .blue : .gray)
+                }
+                .disabled(selectedTab == 2)
                 
                 Spacer()
             }

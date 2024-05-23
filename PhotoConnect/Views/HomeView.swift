@@ -7,7 +7,7 @@ struct HomeView: View {
     @State private var showingImagePicker = false
     @State private var isSkeletonVisible = false
     @Binding var isFetched: Bool
-    
+
     var body: some View {
         VStack {
             Text("Flöde")
@@ -15,7 +15,7 @@ struct HomeView: View {
                 .bold()
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding()
-            
+
             ScrollView(.vertical, showsIndicators: false) {
                 VStack {
                     if isSkeletonVisible {
@@ -67,7 +67,7 @@ struct HomeView: View {
             .refreshable {
                 await refreshContent()
             }
-            
+
             Button(action: {
                 showingImagePicker = true
             }) {
@@ -91,7 +91,7 @@ struct HomeView: View {
                 case .success:
                     isSkeletonVisible = true
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                        viewModel.fetchAllUserImages()
+                        viewModel.fetchFollowersPicture()
                     }
                 case .failure(let error):
                     print("Image picker error: \(error)")
@@ -102,13 +102,13 @@ struct HomeView: View {
             print("isFetched: \(isFetched)")
             if !isFetched {
                 isSkeletonVisible = true
-                viewModel.fetchAllUserImages()
+                viewModel.fetchFollowersPicture()
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                     isFetched = true
                     isSkeletonVisible = false
                 }
             } else {
-                viewModel.fetchAllUserImages()
+                viewModel.fetchFollowersPicture()
             }
         }
         .onChange(of: image) { newImage in
@@ -120,15 +120,16 @@ struct HomeView: View {
             isSkeletonVisible = false
         }
     }
-    
+
     private func refreshContent() async {
         isSkeletonVisible = true
-        viewModel.fetchAllUserImages()
+        viewModel.fetchFollowersPicture()
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
             isSkeletonVisible = false
         }
     }
 }
+
 
 extension Date {
     func timeAgoDisplay() -> String {
@@ -145,7 +146,6 @@ extension Date {
         return "För \(timeString) sen"
     }
 }
-
 
 struct SkeletonView: View {
     var body: some View {

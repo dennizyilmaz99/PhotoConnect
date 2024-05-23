@@ -57,18 +57,20 @@ struct ProfileView: View {
                             }
                             HStack {
                                 VStack {
-                                    Text("30").bold()
+                                    Text("\(viewModel.images.count)").bold()
                                     Text("inlägg").font(.system(size: 12))
                                 }.padding(.trailing, 20)
+                                
                                 NavigationLink(destination: FollowerView()) {
                                     VStack {
-                                        Text("40").bold()
+                                        Text("\(viewModel.followersCount)").bold()
                                         Text("följare").font(.system(size: 12))
                                     }.padding(.trailing, 20)
                                 }.foregroundColor(.primary)
+                                
                                 NavigationLink(destination: FollowingView()) {
                                     VStack {
-                                        Text("40").bold()
+                                        Text("\(viewModel.followingCount)").bold()
                                         Text("följer").font(.system(size: 12))
                                     }
                                 }.foregroundColor(.primary)
@@ -147,7 +149,7 @@ struct ProfileView: View {
         }
     }
     private func refreshContent() async {
-        fetchUserViewModel.fetchAllUserImages()
+        fetchUserViewModel.fetchFollowersPicture()
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
         }
     }

@@ -3,7 +3,7 @@ import FirebaseAuth
 
 class AuthViewModel: ObservableObject {
     @Published var isUserAuthenticated: Bool = false
-    @Published var user: User?
+    @Published var user: FirebaseAuth.User?
     
     private var listener: AuthStateDidChangeListenerHandle?
     

@@ -2,6 +2,7 @@ import SwiftUI
 import FirebaseAuth
 
 struct LoginScreen: View {
+    @Environment(\.presentationMode) var presentationMode
     @State private var email = ""
     @State private var password = ""
     
@@ -15,7 +16,13 @@ struct LoginScreen: View {
                 ButtonContainer(email: $email, password: $password)
                 Spacer()
                 Spacer()
-            }
+            }.navigationBarBackButtonHidden(true)
+                .navigationBarItems(leading: Button(action: {
+                    self.presentationMode.wrappedValue.dismiss()
+                }) {
+                    Image(systemName: "arrow.left")
+                        .foregroundColor(.black)
+                })
         }
     }
 }
