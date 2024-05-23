@@ -10,43 +10,64 @@ struct HomeView: View {
     
     var body: some View {
         VStack {
-            VStack {
-                Text("Flöde")
-                    .font(.title)
-                    .bold()
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding()
-
-                ScrollView(.vertical, showsIndicators: false) {
+            Text("Flöde")
+                .font(.title)
+                .bold()
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding()
+            
+            ScrollView(.vertical, showsIndicators: false) {
+                VStack {
                     if isSkeletonVisible {
-                        SkeletonView()
-                            .padding(.horizontal)
-                    }
-
-                    if !isFetched {
                         ForEach(0..<5) { _ in
                             SkeletonView()
                                 .padding(.horizontal)
                         }
+                    } else if !isFetched {
+                        ForEach(0..<5) { _ in
+                            SkeletonView()
+                                .padding(.horizontal)
+                        }
+                    } else if isFetched && viewModel.userImages.isEmpty {
+                        VStack {
+                            Spacer()
+                            Text("Oops... här var det tomt!")
+                                .font(.headline)
+                                .foregroundColor(.gray)
+                            Spacer()
+                        }
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
                     } else {
                         ForEach(viewModel.userImages) { userImage in
                             VStack(alignment: .leading, spacing: 10) {
                                 Text(userImage.userName)
-                                    .font(.headline)
+                                    .font(.system(size: 15)).bold()
                                     .padding(.leading, 10)
                                 
                                 WebImage(url: URL(string: userImage.imageURL))
                                     .resizable()
-                                    .aspectRatio(contentMode: .fill)
+                                    .scaledToFill()
                                     .frame(width: UIScreen.main.bounds.width - 30, height: UIScreen.main.bounds.height * 0.5)
                                     .cornerRadius(10)
-                                    .padding(.bottom, 25)
+                                
+                                Text(userImage.timestamp.dateValue().timeAgoDisplay())
+                                    .font(.system(size: 13))
+                                    .foregroundColor(.gray)
+                                    .padding(.leading, 10)
+                                    .padding(.bottom, 5)
+                                
+                                Divider()
+                                    .background(Color.gray).padding(.bottom, 5)
                             }
+                            .padding(.horizontal)
                         }
                     }
                 }
             }
-
+            .refreshable {
+                await refreshContent()
+            }
+            
             Button(action: {
                 showingImagePicker = true
             }) {
@@ -65,43 +86,66 @@ struct HomeView: View {
             .offset(y: -20)
         }
         .sheet(isPresented: $showingImagePicker) {
-                    ImagePicker(image: $image) { result in
-                        switch result {
-                        case .success:
-                            isSkeletonVisible = true
-                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                                viewModel.fetchAllUserImages()
-                            }
-                        case .failure(let error):
-                            print("Image picker error: \(error)")
-                        }
-                    }
-                }
-                .onAppear {
-                    print("isFetched: \(isFetched)")
-                    if !isFetched {
-                        print("hämtar bilden 1")
-                        isSkeletonVisible = true
-                        viewModel.fetchAllUserImages()
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                            isFetched = true
-                            print("isFetched: \(isFetched)")
-                            isSkeletonVisible = false
-                        }
-                    } else {
+            ImagePicker(image: $image) { result in
+                switch result {
+                case .success:
+                    isSkeletonVisible = true
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                         viewModel.fetchAllUserImages()
                     }
+                case .failure(let error):
+                    print("Image picker error: \(error)")
                 }
-                .onChange(of: image) { newImage in
-                    if newImage != nil {
-                        isSkeletonVisible = true
-                    }
-                }
-                .onReceive(viewModel.$userImages) { _ in
+            }
+        }
+        .onAppear {
+            print("isFetched: \(isFetched)")
+            if !isFetched {
+                isSkeletonVisible = true
+                viewModel.fetchAllUserImages()
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                    isFetched = true
                     isSkeletonVisible = false
                 }
+            } else {
+                viewModel.fetchAllUserImages()
+            }
+        }
+        .onChange(of: image) { newImage in
+            if newImage != nil {
+                isSkeletonVisible = true
+            }
+        }
+        .onReceive(viewModel.$userImages) { _ in
+            isSkeletonVisible = false
+        }
+    }
+    
+    private func refreshContent() async {
+        isSkeletonVisible = true
+        viewModel.fetchAllUserImages()
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+            isSkeletonVisible = false
+        }
     }
 }
+
+extension Date {
+    func timeAgoDisplay() -> String {
+        let formatter = DateComponentsFormatter()
+        formatter.unitsStyle = .full
+        formatter.maximumUnitCount = 1
+        formatter.allowedUnits = [.second, .minute, .hour, .day, .weekOfMonth]
+        
+        let now = Date()
+        let interval = now.timeIntervalSince(self)
+        
+        guard let timeString = formatter.string(from: interval) else { return "Nyligen" }
+        
+        return "För \(timeString) sen"
+    }
+}
+
 
 struct SkeletonView: View {
     var body: some View {
@@ -109,14 +153,15 @@ struct SkeletonView: View {
             RoundedRectangle(cornerRadius: 10)
                 .fill(Color.gray.opacity(0.3))
                 .frame(width: 150, height: 20)
-                .padding(.leading)
             
             RoundedRectangle(cornerRadius: 10)
                 .fill(Color.gray.opacity(0.3))
                 .frame(width: UIScreen.main.bounds.width - 30, height: UIScreen.main.bounds.height * 0.5)
-                .padding(.bottom, 25)
-
             
+            RoundedRectangle(cornerRadius: 10)
+                .fill(Color.gray.opacity(0.3))
+                .frame(width: 150, height: 20)
+                .padding(.bottom, 5)
         }
         .shimmer()
     }
@@ -130,7 +175,7 @@ extension View {
 
 struct ShimmerEffect: ViewModifier {
     @State private var phase: CGFloat = 0.0
-
+    
     func body(content: Content) -> some View {
         content
             .overlay(

@@ -5,106 +5,135 @@ import SDWebImageSwiftUI
 
 struct ProfileView: View {
     @StateObject private var viewModel = UserProfileViewModel()
+    @StateObject private var fetchUserViewModel = HomeViewViewModel()
     @State private var alertType: AlertType? = nil
     @State private var alertMessage = ""
     @State private var selectedImage: ImageItem? = nil
     @State private var showFullScreenImage = false
     @State private var longPressingImage: ImageItem? = nil
-
+    
     enum AlertType: Identifiable {
         case logOut
         case deleteImage
-
+        
         var id: Int {
             hashValue
         }
     }
-
+    
     var body: some View {
-        VStack {
-            HStack {
-                Text(viewModel.userName).frame(maxWidth: .infinity, alignment: .leading)
-                    .font(.title).bold()
-                    .padding()
-                
-                Button(action: {
-                    alertMessage = "Är du säker att du vill logga ut?"
-                    alertType = .logOut
-                    print("Log out button pressed, alertType set to \(String(describing: alertType))")
-                }) {
-                    Image(systemName: "rectangle.portrait.and.arrow.right")
-                        .font(.title2)
-                        .foregroundColor(.blue).padding()
+        NavigationView {
+            VStack {
+                HStack {
+                    Text(viewModel.userName).frame(maxWidth: .infinity, alignment: .leading)
+                        .font(.title).bold()
+                        .padding()
+                    
+                    Button(action: {
+                        alertMessage = "Är du säker att du vill logga ut?"
+                        alertType = .logOut
+                        print("Log out button pressed, alertType set to \(String(describing: alertType))")
+                    }) {
+                        Image(systemName: "rectangle.portrait.and.arrow.right")
+                            .font(.title2)
+                            .foregroundColor(.blue).padding()
+                    }
+                }
+                VStack {
+                    
+                    let columns = [
+                        GridItem(.flexible(), spacing: 10),
+                        GridItem(.flexible(), spacing: 10),
+                        GridItem(.flexible(), spacing: 10)
+                    ]
+                    
+                    ScrollView {
+                        HStack{
+                            VStack {
+                                Text("Ditt galleri")
+                                    .font(.headline).bold()
+                                    .frame(maxWidth: .infinity, alignment: .leading)
+                                    .padding(.horizontal)
+                            }
+                            HStack {
+                                VStack {
+                                    Text("30").bold()
+                                    Text("inlägg").font(.system(size: 12))
+                                }.padding(.trailing, 20)
+                                NavigationLink(destination: FollowerView()) {
+                                    VStack {
+                                        Text("40").bold()
+                                        Text("följare").font(.system(size: 12))
+                                    }.padding(.trailing, 20)
+                                }.foregroundColor(.primary)
+                                NavigationLink(destination: FollowingView()) {
+                                    VStack {
+                                        Text("40").bold()
+                                        Text("följer").font(.system(size: 12))
+                                    }
+                                }.foregroundColor(.primary)
+                            }.padding(.trailing, 25)
+                        }
+                        
+                        
+                        LazyVGrid(columns: columns, spacing: 10) {
+                            ForEach(viewModel.images) { image in
+                                WebImage(url: URL(string: image.imageName))
+                                    .resizable()
+                                    .scaledToFill()
+                                    .frame(width: 115, height: 115)
+                                    .clipped()
+                                    .cornerRadius(10)
+                                    .opacity(longPressingImage == image ? 0.5 : 1.0)
+                                    .contentShape(Rectangle())
+                                    .onTapGesture {
+                                        selectedImage = image
+                                        showFullScreenImage = true
+                                        print("Selected image URL: \(image.imageName)")
+                                    }
+                                    .onLongPressGesture(minimumDuration: 0.5) {
+                                        selectedImage = image
+                                        alertMessage = "Är du säker på att du vill ta bort denna bild?"
+                                        alertType = .deleteImage
+                                    } onPressingChanged: { isPressing in
+                                        if isPressing {
+                                            longPressingImage = image
+                                        } else {
+                                            longPressingImage = nil
+                                        }
+                                    }
+                            }
+                        }.padding()
+                    }.refreshable {
+                        await refreshContent()
+                    }
+                }
+                Spacer()
+            }
+            .alert(item: $alertType) { alertType in
+                switch alertType {
+                case .logOut:
+                    return Alert(title: Text("Är du säker?"),
+                                 message: Text(alertMessage),
+                                 primaryButton: .destructive(Text("Logga ut")) {
+                        logOut()
+                    },
+                                 secondaryButton: .cancel())
+                case .deleteImage:
+                    return Alert(title: Text("Är du säker?"),
+                                 message: Text(alertMessage),
+                                 primaryButton: .destructive(Text("Ta bort")) {
+                        if let image = selectedImage {
+                            viewModel.deleteImage(image: image)
+                        }
+                    },
+                                 secondaryButton: .cancel())
                 }
             }
-            VStack {
-                Text("Ditt galleri")
-                    .font(.headline).bold()
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(.horizontal)
-                
-                let columns = [
-                    GridItem(.flexible(), spacing: 10),
-                    GridItem(.flexible(), spacing: 10),
-                    GridItem(.flexible(), spacing: 10)
-                ]
-                
-                ScrollView {
-                                LazyVGrid(columns: columns, spacing: 10) {
-                                    ForEach(viewModel.images) { image in
-                                        WebImage(url: URL(string: image.imageName))
-                                            .resizable()
-                                            .scaledToFill()
-                                            .frame(width: 115, height: 115)
-                                            .clipped()
-                                            .cornerRadius(10)
-                                            .opacity(longPressingImage == image ? 0.5 : 1.0)
-                                            .contentShape(Rectangle())
-                                            .onTapGesture {
-                                                selectedImage = image
-                                                showFullScreenImage = true
-                                                print("Selected image URL: \(image.imageName)")
-                                            }
-                                            .onLongPressGesture(minimumDuration: 0.5) {
-                                                selectedImage = image
-                                                alertMessage = "Är du säker på att du vill ta bort denna bild?"
-                                                alertType = .deleteImage
-                                            } onPressingChanged: { isPressing in
-                                                if isPressing {
-                                                    longPressingImage = image
-                                                } else {
-                                                    longPressingImage = nil
-                                                }
-                                            }
-                                    }
-                                }.padding()
-                            }
-            }
-            Spacer()
-        }
-        .alert(item: $alertType) { alertType in
-            switch alertType {
-            case .logOut:
-                return Alert(title: Text("Är du säker?"),
-                             message: Text(alertMessage),
-                             primaryButton: .destructive(Text("Logga ut")) {
-                                logOut()
-                             },
-                             secondaryButton: .cancel())
-            case .deleteImage:
-                return Alert(title: Text("Är du säker?"),
-                             message: Text(alertMessage),
-                             primaryButton: .destructive(Text("Ta bort")) {
-                                if let image = selectedImage {
-                                    viewModel.deleteImage(image: image)
-                                }
-                             },
-                             secondaryButton: .cancel())
-            }
-        }
-        .fullScreenCover(isPresented: $showFullScreenImage) {
-            if let image = selectedImage {
-                FullScreenImageView(imageUrl: image.imageName, isPresented: $showFullScreenImage)
+            .fullScreenCover(isPresented: $showFullScreenImage) {
+                if let image = selectedImage {
+                    FullScreenImageView(imageUrl: image.imageName, isPresented: $showFullScreenImage)
+                }
             }
         }
     }
@@ -117,12 +146,17 @@ struct ProfileView: View {
             print("Ett fel uppstod vid utloggning: \(error.localizedDescription)")
         }
     }
+    private func refreshContent() async {
+        fetchUserViewModel.fetchAllUserImages()
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+        }
+    }
 }
 
 struct FullScreenImageView: View {
     let imageUrl: String
     @Binding var isPresented: Bool
-
+    
     var body: some View {
         ZStack {
             Color.black.edgesIgnoringSafeArea(.all)

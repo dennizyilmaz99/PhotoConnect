@@ -8,7 +8,6 @@ struct UserImage: Identifiable {
     let timestamp: Timestamp
 }
 
-
 class HomeViewViewModel: ObservableObject {
     @Published var userImages: [UserImage] = []
     private var listener: ListenerRegistration?
@@ -18,8 +17,6 @@ class HomeViewViewModel: ObservableObject {
     }
     
     func fetchAllUserImages() {
-        guard userImages.isEmpty else { return }
-        
         let db = Firestore.firestore()
         listener = db.collection("users").addSnapshotListener { snapshot, error in
             if let error = error {
@@ -49,7 +46,7 @@ class HomeViewViewModel: ObservableObject {
                 }
             }
             
-            newImages.sort(by: { $0.timestamp.seconds > $1.timestamp.seconds })
+            newImages.sort(by: { $0.timestamp.dateValue() > $1.timestamp.dateValue() })
             
             DispatchQueue.main.async {
                 self.userImages = newImages
