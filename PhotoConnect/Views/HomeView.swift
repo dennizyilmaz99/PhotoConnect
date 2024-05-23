@@ -14,7 +14,7 @@ struct HomeView: View {
                 .font(.title)
                 .bold()
                 .frame(maxWidth: .infinity, alignment: .leading)
-                .padding()
+                .padding(.horizontal)
 
             ScrollView(.vertical, showsIndicators: false) {
                 VStack {

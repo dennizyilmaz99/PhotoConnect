@@ -27,7 +27,7 @@ struct ProfileView: View {
                 HStack {
                     Text(viewModel.userName).frame(maxWidth: .infinity, alignment: .leading)
                         .font(.title).bold()
-                        .padding()
+                        .padding(.horizontal)
                     
                     Button(action: {
                         alertMessage = "Är du säker att du vill logga ut?"

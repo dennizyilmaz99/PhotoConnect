@@ -10,7 +10,7 @@ struct SearchUserView: View {
                     .font(.title)
                     .bold()
                     .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding()
+                    .padding(.horizontal)
             }
             HStack {
                 HStack {
@@ -18,7 +18,7 @@ struct SearchUserView: View {
                         .foregroundColor(.gray)
                         .padding(.leading, 5)
                     
-                    TextField("Sök...", text: $viewModel.searchText)
+                    TextField("Sök", text: $viewModel.searchText)
                         .textFieldStyle(PlainTextFieldStyle())
                         .padding(7)
                         .onChange(of: viewModel.searchText) { newValue in
@@ -65,10 +65,11 @@ struct SearchUserView: View {
                                 }) {
                                     Text(viewModel.isFollowing(user) ? "Avfölj" : "Följ")
                                         .font(.subheadline)
-                                        .padding(5)
-                                        .background(viewModel.isFollowing(user) ? Color.red : Color.blue)
+                                        .padding(7)
+                                        .frame(width: 70) // Fixed width for button
+                                        .background(viewModel.isFollowing(user) ? Color.gray : Color.blue)
                                         .foregroundColor(.white)
-                                        .cornerRadius(5)
+                                        .cornerRadius(7)
                                 }
                             }
                             .padding(.horizontal)

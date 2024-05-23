@@ -23,10 +23,12 @@ struct FollowerView: View {
                             viewModel.removeFollower(user)
                         }) {
                             Text("Ta bort")
-                                .foregroundColor(.red)
-                                .padding(5)
+                                .font(.system(size: 14)).bold()
+                                .foregroundColor(.black)
+                                .padding(7)
+                                .frame(width: 70) // Fixed width for button
                                 .background(Color(.systemGray5))
-                                .cornerRadius(5)
+                                .cornerRadius(7)
                         }
                     }
                 }
