@@ -18,15 +18,12 @@ struct SearchUserView: View {
                         .foregroundColor(.gray)
                         .padding(.leading, 5)
                     
-                    TextField("Sök...", text: $viewModel.searchText, onEditingChanged: { isEditing in
-                        if isEditing {
+                    TextField("Sök...", text: $viewModel.searchText)
+                        .textFieldStyle(PlainTextFieldStyle())
+                        .padding(7)
+                        .onChange(of: viewModel.searchText) { newValue in
                             viewModel.performSearch()
                         }
-                    }, onCommit: {
-                        viewModel.performSearch()
-                    })
-                    .textFieldStyle(PlainTextFieldStyle())
-                    .padding(7)
                     
                     if !viewModel.searchText.isEmpty {
                         Button(action: {
@@ -44,7 +41,11 @@ struct SearchUserView: View {
             }
             .padding()
             
-            if !viewModel.searchResults.isEmpty {
+            if viewModel.searchResults.isEmpty && !viewModel.searchText.isEmpty {
+                Text("Det finns ingen som heter '\(viewModel.searchText)'")
+                    .foregroundColor(.gray)
+                    .padding()
+            } else if !viewModel.searchResults.isEmpty {
                 ScrollView {
                     VStack(alignment: .leading) {
                         ForEach(viewModel.searchResults) { user in

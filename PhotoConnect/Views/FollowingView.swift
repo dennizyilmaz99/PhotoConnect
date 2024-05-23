@@ -6,16 +6,28 @@ struct FollowingView: View {
     
     var body: some View {
         VStack {
-            if $viewModel.following.isEmpty {
+            if viewModel.following.isEmpty {
                 Text("Du följer ingen ännu.")
                     .foregroundColor(.gray)
                     .padding()
             } else {
                 List(viewModel.following) { user in
-                    VStack(alignment: .leading) {
-                        Text(user.name)
-                            .font(.headline)
-                            .padding(.vertical, 5)
+                    HStack {
+                        VStack(alignment: .leading) {
+                            Text(user.name)
+                                .font(.headline)
+                                .padding(.vertical, 5)
+                        }
+                        Spacer()
+                        Button(action: {
+                            viewModel.unfollowUser(user)
+                        }) {
+                            Text("Avfölj")
+                                .foregroundColor(.red)
+                                .padding(5)
+                                .background(Color(.systemGray5))
+                                .cornerRadius(5)
+                        }
                     }
                 }
             }
