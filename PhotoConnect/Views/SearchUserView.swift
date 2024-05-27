@@ -66,7 +66,7 @@ struct SearchUserView: View {
                                     Text(viewModel.isFollowing(user) ? "Avfölj" : "Följ")
                                         .font(.subheadline)
                                         .padding(7)
-                                        .frame(width: 70) // Fixed width for button
+                                        .frame(width: 70)
                                         .background(viewModel.isFollowing(user) ? Color.gray : Color.blue)
                                         .foregroundColor(.white)
                                         .cornerRadius(7)

@@ -5,7 +5,7 @@ struct HomeScreen: View {
     @State private var previousTab = 0
     @State private var scaleEffect: CGFloat = 1.0
     @State private var isFetched = false
-
+    
     
     var body: some View {
         VStack(spacing: 0) {

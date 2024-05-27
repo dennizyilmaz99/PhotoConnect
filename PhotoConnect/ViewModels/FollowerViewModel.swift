@@ -12,26 +12,26 @@ class FollowViewModel: ObservableObject {
     @Published var following: [FollowUser] = []
     private var db = Firestore.firestore()
     private var auth = Auth.auth()
-
+    
     init() {
         fetchFollowers()
         fetchFollowing()
     }
-
+    
     func fetchFollowers() {
         guard let currentUserID = auth.currentUser?.uid else { return }
-
+        
         db.collection("users").document(currentUserID).collection("followers").getDocuments { [weak self] snapshot, error in
             if let error = error {
                 print("Error fetching followers: \(error.localizedDescription)")
                 return
             }
-
+            
             guard let documents = snapshot?.documents else {
                 print("No followers found")
                 return
             }
-
+            
             var followers: [FollowUser] = []
             let group = DispatchGroup()
             
@@ -56,7 +56,7 @@ class FollowViewModel: ObservableObject {
             }
         }
     }
-
+    
     func fetchFollowing() {
         guard let currentUserID = auth.currentUser?.uid else { return }
         
@@ -98,15 +98,15 @@ class FollowViewModel: ObservableObject {
     
     func unfollowUser(_ user: FollowUser) {
         guard let currentUserID = auth.currentUser?.uid else { return }
-
+        
         let batch = db.batch()
-
+        
         let followingRef = db.collection("users").document(currentUserID).collection("following").document(user.id)
         batch.deleteDocument(followingRef)
-
+        
         let followerRef = db.collection("users").document(user.id).collection("followers").document(currentUserID)
         batch.deleteDocument(followerRef)
-
+        
         batch.commit { [weak self] error in
             if let error = error {
                 print("Error unfollowing user: \(error.localizedDescription)")
@@ -115,18 +115,18 @@ class FollowViewModel: ObservableObject {
             }
         }
     }
-
+    
     func removeFollower(_ user: FollowUser) {
         guard let currentUserID = auth.currentUser?.uid else { return }
-
+        
         let batch = db.batch()
-
+        
         let followerRef = db.collection("users").document(currentUserID).collection("followers").document(user.id)
         batch.deleteDocument(followerRef)
-
+        
         let followingRef = db.collection("users").document(user.id).collection("following").document(currentUserID)
         batch.deleteDocument(followingRef)
-
+        
         batch.commit { [weak self] error in
             if let error = error {
                 print("Error removing follower: \(error.localizedDescription)")
@@ -135,5 +135,5 @@ class FollowViewModel: ObservableObject {
             }
         }
     }
-
+    
 }

@@ -26,10 +26,10 @@ struct FollowingView: View {
                                 .font(.system(size: 14)).bold()
                                 .foregroundColor(.black)
                                 .padding(7)
-                                .frame(width: 70) // Fixed width for button
+                                .frame(width: 70)
                                 .background(Color(.systemGray5))
                                 .cornerRadius(7)
-                                
+                            
                         }
                     }
                 }

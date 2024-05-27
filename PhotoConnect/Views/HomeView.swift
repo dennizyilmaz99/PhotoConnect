@@ -7,7 +7,7 @@ struct HomeView: View {
     @State private var showingImagePicker = false
     @State private var isSkeletonVisible = false
     @Binding var isFetched: Bool
-
+    
     var body: some View {
         VStack {
             Text("Flöde")
@@ -15,7 +15,7 @@ struct HomeView: View {
                 .bold()
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(.horizontal)
-
+            
             ScrollView(.vertical, showsIndicators: false) {
                 VStack {
                     if isSkeletonVisible {
@@ -67,7 +67,7 @@ struct HomeView: View {
             .refreshable {
                 await refreshContent()
             }
-
+            
             Button(action: {
                 showingImagePicker = true
             }) {
@@ -120,7 +120,7 @@ struct HomeView: View {
             isSkeletonVisible = false
         }
     }
-
+    
     private func refreshContent() async {
         isSkeletonVisible = true
         viewModel.fetchFollowersPicture()
