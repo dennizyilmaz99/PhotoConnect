@@ -36,7 +36,7 @@ struct ProfileView: View {
                     }) {
                         Image(systemName: "rectangle.portrait.and.arrow.right")
                             .font(.title2)
-                            .foregroundColor(.blue).padding()
+                            .foregroundColor(.blue).padding(.horizontal)
                     }
                 }
                 VStack {
