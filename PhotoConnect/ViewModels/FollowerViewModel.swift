@@ -14,7 +14,7 @@ class FollowViewModel: ObservableObject {
     private var db = Firestore.firestore()
     
     private var userID: String
-    var currentUserID: String?
+    private var currentUserID: String?
     
     init(userID: String) {
         self.userID = userID
@@ -129,11 +129,11 @@ class FollowViewModel: ObservableObject {
         let followerRef = db.collection("users").document(user.id).collection("followers").document(currentUserID)
         batch.setData([:], forDocument: followerRef)
         
-        batch.commit { error in
+        batch.commit { [weak self] error in
             if let error = error {
                 print("Error following user: \(error.localizedDescription)")
             } else {
-                self.fetchFollowing()
+                self?.updateFollowingStatus(for: user.id, isFollowing: true)
             }
         }
     }
@@ -153,9 +153,17 @@ class FollowViewModel: ObservableObject {
             if let error = error {
                 print("Error unfollowing user: \(error.localizedDescription)")
             } else {
-                self?.following.removeAll { $0.id == user.id }
-                self?.fetchFollowing()
+                self?.updateFollowingStatus(for: user.id, isFollowing: false)
             }
+        }
+    }
+    
+    private func updateFollowingStatus(for userID: String, isFollowing: Bool) {
+        if let index = self.followers.firstIndex(where: { $0.id == userID }) {
+            self.followers[index].isFollowing = isFollowing
+        }
+        if let index = self.following.firstIndex(where: { $0.id == userID }) {
+            self.following[index].isFollowing = isFollowing
         }
     }
     

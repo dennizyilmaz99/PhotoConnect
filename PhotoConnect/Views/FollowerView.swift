@@ -1,14 +1,17 @@
 import SwiftUI
+import FirebaseAuth
 
 struct FollowerView: View {
     @Environment(\.presentationMode) var presentationMode
     @StateObject private var viewModel: FollowViewModel
     
     var userID: String
+    private var isCurrentUser: Bool
     
     init(userID: String) {
         self.userID = userID
         _viewModel = StateObject(wrappedValue: FollowViewModel(userID: userID))
+        self.isCurrentUser = Auth.auth().currentUser?.uid == userID
     }
     
     var body: some View {
@@ -26,7 +29,7 @@ struct FollowerView: View {
                                 .padding(.vertical, 5)
                         }
                         Spacer()
-                        if user.id == viewModel.currentUserID {
+                        if isCurrentUser {
                             Button(action: {
                                 viewModel.removeFollower(user)
                             }) {
@@ -48,7 +51,7 @@ struct FollowerView: View {
                             }) {
                                 Text(user.isFollowing ? "Avfölj" : "Följ")
                                     .font(.system(size: 14)).bold()
-                                    .foregroundColor(.black)
+                                    .foregroundColor(user.isFollowing ? Color(.black) : Color(.white))
                                     .padding(7)
                                     .frame(width: 70)
                                     .background(user.isFollowing ? Color(.systemGray5) : Color(.systemBlue))

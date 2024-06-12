@@ -35,7 +35,7 @@ struct FollowingView: View {
                         }) {
                             Text(user.isFollowing ? "Avfölj" : "Följ")
                                 .font(.system(size: 14)).bold()
-                                .foregroundColor(.black)
+                                .foregroundColor(user.isFollowing ? Color(.black) : Color(.white))
                                 .padding(7)
                                 .frame(width: 70)
                                 .background(user.isFollowing ? Color(.systemGray5) : Color(.systemBlue))
