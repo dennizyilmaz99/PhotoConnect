@@ -4,6 +4,7 @@ import FirebaseAuth
 
 struct UserImage: Identifiable {
     let id: String
+    let userID: String
     let userName: String
     let imageURL: String
     let timestamp: Timestamp
@@ -69,7 +70,7 @@ class HomeViewViewModel: ObservableObject {
                               let timestamp = imageDict["timestamp"] as? Timestamp else {
                             return nil
                         }
-                        return UserImage(id: UUID().uuidString, userName: userName, imageURL: imageURL, timestamp: timestamp)
+                        return UserImage(id: UUID().uuidString, userID: userID, userName: userName, imageURL: imageURL, timestamp: timestamp)
                     }
                     allImages.append(contentsOf: userImages)
                 }
@@ -78,7 +79,7 @@ class HomeViewViewModel: ObservableObject {
         
         dispatchGroup.notify(queue: .main) {
             self.userImages = allImages.sorted(by: { $0.timestamp.seconds > $1.timestamp.seconds })
-            print("Final userImages count: \(self.userImages.count)")
+            print("Final userImages count: \(self.userImages.count ?? 0)")
         }
     }
 }

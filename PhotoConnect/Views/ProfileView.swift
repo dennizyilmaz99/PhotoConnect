@@ -4,13 +4,19 @@ import FirebaseAuth
 import SDWebImageSwiftUI
 
 struct ProfileView: View {
-    @StateObject private var viewModel = UserProfileViewModel()
-    @StateObject private var fetchUserViewModel = HomeViewViewModel()
+    @StateObject private var viewModel: UserProfileViewModel
     @State private var alertType: AlertType? = nil
     @State private var alertMessage = ""
     @State private var selectedImage: ImageItem? = nil
     @State private var showFullScreenImage = false
     @State private var longPressingImage: ImageItem? = nil
+    
+    var userID: String
+    
+    init(userID: String) {
+        self.userID = userID
+        _viewModel = StateObject(wrappedValue: UserProfileViewModel(userID: userID))
+    }
     
     enum AlertType: Identifiable {
         case logOut
@@ -40,7 +46,6 @@ struct ProfileView: View {
                     }
                 }
                 VStack {
-                    
                     let columns = [
                         GridItem(.flexible(), spacing: 10),
                         GridItem(.flexible(), spacing: 10),
@@ -48,7 +53,7 @@ struct ProfileView: View {
                     ]
                     
                     ScrollView {
-                        HStack{
+                        HStack {
                             VStack {
                                 Text("Ditt galleri")
                                     .font(.headline).bold()
@@ -61,14 +66,14 @@ struct ProfileView: View {
                                     Text("inlägg").font(.system(size: 12))
                                 }.padding(.trailing, 20)
                                 
-                                NavigationLink(destination: FollowerView()) {
+                                NavigationLink(destination: FollowerView(userID: userID)) {
                                     VStack {
                                         Text("\(viewModel.followersCount)").bold()
                                         Text("följare").font(.system(size: 12))
                                     }.padding(.trailing, 20)
                                 }.foregroundColor(.primary)
                                 
-                                NavigationLink(destination: FollowingView()) {
+                                NavigationLink(destination: FollowingView(userID: userID)) {
                                     VStack {
                                         Text("\(viewModel.followingCount)").bold()
                                         Text("följer").font(.system(size: 12))
@@ -76,7 +81,6 @@ struct ProfileView: View {
                                 }.foregroundColor(.primary)
                             }.padding(.trailing, 25)
                         }
-                        
                         
                         LazyVGrid(columns: columns, spacing: 10) {
                             ForEach(viewModel.images) { image in
@@ -148,10 +152,9 @@ struct ProfileView: View {
             print("Ett fel uppstod vid utloggning: \(error.localizedDescription)")
         }
     }
+    
     private func refreshContent() async {
-        fetchUserViewModel.fetchFollowersPicture()
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-        }
+        viewModel.fetchUserProfile()
     }
 }
 
@@ -186,5 +189,5 @@ struct FullScreenImageView: View {
 }
 
 #Preview {
-    ProfileView()
+    ProfileView(userID: "exampleUserID")
 }

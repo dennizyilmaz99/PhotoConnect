@@ -2,7 +2,14 @@ import SwiftUI
 
 struct FollowerView: View {
     @Environment(\.presentationMode) var presentationMode
-    @StateObject private var viewModel = FollowViewModel()
+    @StateObject private var viewModel: FollowViewModel
+    
+    var userID: String
+    
+    init(userID: String) {
+        self.userID = userID
+        _viewModel = StateObject(wrappedValue: FollowViewModel(userID: userID))
+    }
     
     var body: some View {
         VStack {
@@ -19,16 +26,34 @@ struct FollowerView: View {
                                 .padding(.vertical, 5)
                         }
                         Spacer()
-                        Button(action: {
-                            viewModel.removeFollower(user)
-                        }) {
-                            Text("Ta bort")
-                                .font(.system(size: 14)).bold()
-                                .foregroundColor(.black)
-                                .padding(7)
-                                .frame(width: 70)
-                                .background(Color(.systemGray5))
-                                .cornerRadius(7)
+                        if user.id == viewModel.currentUserID {
+                            Button(action: {
+                                viewModel.removeFollower(user)
+                            }) {
+                                Text("Ta bort")
+                                    .font(.system(size: 14)).bold()
+                                    .foregroundColor(.black)
+                                    .padding(7)
+                                    .frame(width: 70)
+                                    .background(Color(.systemGray5))
+                                    .cornerRadius(7)
+                            }
+                        } else {
+                            Button(action: {
+                                if user.isFollowing {
+                                    viewModel.unfollowUser(user)
+                                } else {
+                                    viewModel.followUser(user)
+                                }
+                            }) {
+                                Text(user.isFollowing ? "Avfölj" : "Följ")
+                                    .font(.system(size: 14)).bold()
+                                    .foregroundColor(.black)
+                                    .padding(7)
+                                    .frame(width: 70)
+                                    .background(user.isFollowing ? Color(.systemGray5) : Color(.systemBlue))
+                                    .cornerRadius(7)
+                            }
                         }
                     }
                 }
@@ -46,5 +71,5 @@ struct FollowerView: View {
 }
 
 #Preview {
-    FollowerView()
+    FollowerView(userID: "exampleUserID")
 }

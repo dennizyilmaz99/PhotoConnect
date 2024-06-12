@@ -2,7 +2,14 @@ import SwiftUI
 
 struct FollowingView: View {
     @Environment(\.presentationMode) var presentationMode
-    @StateObject private var viewModel = FollowViewModel()
+    @StateObject private var viewModel: FollowViewModel
+    
+    var userID: String
+    
+    init(userID: String) {
+        self.userID = userID
+        _viewModel = StateObject(wrappedValue: FollowViewModel(userID: userID))
+    }
     
     var body: some View {
         VStack {
@@ -20,16 +27,19 @@ struct FollowingView: View {
                         }
                         Spacer()
                         Button(action: {
-                            viewModel.unfollowUser(user)
+                            if user.isFollowing {
+                                viewModel.unfollowUser(user)
+                            } else {
+                                viewModel.followUser(user)
+                            }
                         }) {
-                            Text("Avfölj")
+                            Text(user.isFollowing ? "Avfölj" : "Följ")
                                 .font(.system(size: 14)).bold()
                                 .foregroundColor(.black)
                                 .padding(7)
                                 .frame(width: 70)
-                                .background(Color(.systemGray5))
+                                .background(user.isFollowing ? Color(.systemGray5) : Color(.systemBlue))
                                 .cornerRadius(7)
-                            
                         }
                     }
                 }
@@ -47,5 +57,5 @@ struct FollowingView: View {
 }
 
 #Preview {
-    FollowingView()
+    FollowingView(userID: "exampleUserID")
 }

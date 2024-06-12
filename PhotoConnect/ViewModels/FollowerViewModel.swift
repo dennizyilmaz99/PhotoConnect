@@ -5,23 +5,26 @@ import FirebaseAuth
 struct FollowUser: Identifiable {
     let id: String
     let name: String
+    var isFollowing: Bool = false
 }
 
 class FollowViewModel: ObservableObject {
     @Published var followers: [FollowUser] = []
     @Published var following: [FollowUser] = []
     private var db = Firestore.firestore()
-    private var auth = Auth.auth()
     
-    init() {
+    private var userID: String
+    var currentUserID: String?
+    
+    init(userID: String) {
+        self.userID = userID
+        self.currentUserID = Auth.auth().currentUser?.uid
         fetchFollowers()
         fetchFollowing()
     }
     
     func fetchFollowers() {
-        guard let currentUserID = auth.currentUser?.uid else { return }
-        
-        db.collection("users").document(currentUserID).collection("followers").getDocuments { [weak self] snapshot, error in
+        db.collection("users").document(userID).collection("followers").getDocuments { [weak self] snapshot, error in
             if let error = error {
                 print("Error fetching followers: \(error.localizedDescription)")
                 return
@@ -46,8 +49,11 @@ class FollowViewModel: ObservableObject {
                     }
                     
                     let name = userSnapshot?.data()?["name"] as? String ?? "Unknown"
-                    followers.append(FollowUser(id: id, name: name))
-                    group.leave()
+                    
+                    self?.isCurrentUserFollowing(id) { isFollowing in
+                        followers.append(FollowUser(id: id, name: name, isFollowing: isFollowing))
+                        group.leave()
+                    }
                 }
             }
             
@@ -58,9 +64,7 @@ class FollowViewModel: ObservableObject {
     }
     
     func fetchFollowing() {
-        guard let currentUserID = auth.currentUser?.uid else { return }
-        
-        db.collection("users").document(currentUserID).collection("following").getDocuments { [weak self] snapshot, error in
+        db.collection("users").document(userID).collection("following").getDocuments { [weak self] snapshot, error in
             if let error = error {
                 print("Error fetching following: \(error.localizedDescription)")
                 return
@@ -85,8 +89,11 @@ class FollowViewModel: ObservableObject {
                     }
                     
                     let name = userSnapshot?.data()?["name"] as? String ?? "Unknown"
-                    following.append(FollowUser(id: id, name: name))
-                    group.leave()
+                    
+                    self?.isCurrentUserFollowing(id) { isFollowing in
+                        following.append(FollowUser(id: id, name: name, isFollowing: isFollowing))
+                        group.leave()
+                    }
                 }
             }
             
@@ -96,8 +103,43 @@ class FollowViewModel: ObservableObject {
         }
     }
     
+    func isCurrentUserFollowing(_ userID: String, completion: @escaping (Bool) -> Void) {
+        guard let currentUserID = currentUserID else {
+            completion(false)
+            return
+        }
+        
+        db.collection("users").document(currentUserID).collection("following").document(userID).getDocument { document, error in
+            if let document = document, document.exists {
+                completion(true)
+            } else {
+                completion(false)
+            }
+        }
+    }
+    
+    func followUser(_ user: FollowUser) {
+        guard let currentUserID = currentUserID else { return }
+        
+        let batch = db.batch()
+        
+        let followingRef = db.collection("users").document(currentUserID).collection("following").document(user.id)
+        batch.setData([:], forDocument: followingRef)
+        
+        let followerRef = db.collection("users").document(user.id).collection("followers").document(currentUserID)
+        batch.setData([:], forDocument: followerRef)
+        
+        batch.commit { error in
+            if let error = error {
+                print("Error following user: \(error.localizedDescription)")
+            } else {
+                self.fetchFollowing()
+            }
+        }
+    }
+    
     func unfollowUser(_ user: FollowUser) {
-        guard let currentUserID = auth.currentUser?.uid else { return }
+        guard let currentUserID = currentUserID else { return }
         
         let batch = db.batch()
         
@@ -112,12 +154,13 @@ class FollowViewModel: ObservableObject {
                 print("Error unfollowing user: \(error.localizedDescription)")
             } else {
                 self?.following.removeAll { $0.id == user.id }
+                self?.fetchFollowing()
             }
         }
     }
     
     func removeFollower(_ user: FollowUser) {
-        guard let currentUserID = auth.currentUser?.uid else { return }
+        guard let currentUserID = currentUserID else { return }
         
         let batch = db.batch()
         
@@ -132,8 +175,8 @@ class FollowViewModel: ObservableObject {
                 print("Error removing follower: \(error.localizedDescription)")
             } else {
                 self?.followers.removeAll { $0.id == user.id }
+                self?.fetchFollowers()
             }
         }
     }
-    
 }

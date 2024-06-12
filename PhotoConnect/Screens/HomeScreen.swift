@@ -1,4 +1,5 @@
 import SwiftUI
+import FirebaseAuth
 
 struct HomeScreen: View {
     @State private var selectedTab = 0
@@ -6,6 +7,16 @@ struct HomeScreen: View {
     @State private var scaleEffect: CGFloat = 1.0
     @State private var isFetched = false
     
+    var userID: String
+        
+        init() {
+            if let currentUser = Auth.auth().currentUser {
+                self.userID = currentUser.uid
+            } else {
+                // Hantera fallet om ingen användare är inloggad
+                self.userID = "no_user"
+            }
+        }
     
     var body: some View {
         VStack(spacing: 0) {
@@ -18,7 +29,7 @@ struct HomeScreen: View {
                     } else if selectedTab == 1 {
                         SearchUserView().transition(.push(from: .leading))
                     } else if selectedTab == 2 {
-                        ProfileView()
+                        ProfileView(userID: userID)
                             .transition(.push(from: .leading))
                             .id(selectedTab)
                     }

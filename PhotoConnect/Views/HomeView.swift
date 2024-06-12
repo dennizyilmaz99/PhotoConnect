@@ -9,115 +9,121 @@ struct HomeView: View {
     @Binding var isFetched: Bool
     
     var body: some View {
-        VStack {
-            Text("Flöde")
-                .font(.title)
-                .bold()
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .padding(.horizontal)
-            
-            ScrollView(.vertical, showsIndicators: false) {
-                VStack {
-                    if isSkeletonVisible {
-                        ForEach(0..<5) { _ in
-                            SkeletonView()
-                                .padding(.horizontal)
-                        }
-                    } else if !isFetched {
-                        ForEach(0..<5) { _ in
-                            SkeletonView()
-                                .padding(.horizontal)
-                        }
-                    } else if isFetched && viewModel.userImages.isEmpty {
-                        VStack {
-                            Spacer()
-                            Text("Oops... här var det tomt!")
-                                .font(.headline)
-                                .foregroundColor(.gray)
-                            Spacer()
-                        }
-                        .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    } else {
-                        ForEach(viewModel.userImages) { userImage in
-                            VStack(alignment: .leading, spacing: 10) {
-                                Text(userImage.userName)
-                                    .font(.system(size: 15)).bold()
-                                    .padding(.leading, 10)
-                                
-                                WebImage(url: URL(string: userImage.imageURL))
-                                    .resizable()
-                                    .scaledToFill()
-                                    .frame(width: UIScreen.main.bounds.width - 30, height: UIScreen.main.bounds.height * 0.5)
-                                    .cornerRadius(10)
-                                
-                                Text(userImage.timestamp.dateValue().timeAgoDisplay())
-                                    .font(.system(size: 13))
-                                    .foregroundColor(.gray)
-                                    .padding(.leading, 10)
-                                    .padding(.bottom, 5)
-                                
-                                Divider()
-                                    .background(Color.gray).padding(.bottom, 5)
+        NavigationView {
+            VStack {
+                Text("Flöde")
+                    .font(.title)
+                    .bold()
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(.horizontal)
+                
+                ScrollView(.vertical, showsIndicators: false) {
+                    VStack {
+                        if isSkeletonVisible {
+                            ForEach(0..<5) { _ in
+                                SkeletonView()
+                                    .padding(.horizontal)
                             }
-                            .padding(.horizontal)
+                        } else if !isFetched {
+                            ForEach(0..<5) { _ in
+                                SkeletonView()
+                                    .padding(.horizontal)
+                            }
+                        } else if isFetched && viewModel.userImages.isEmpty {
+                            VStack {
+                                Spacer()
+                                Text("Oops... här var det tomt!")
+                                    .font(.headline)
+                                    .foregroundColor(.gray)
+                                Spacer()
+                            }
+                            .frame(maxWidth: .infinity, maxHeight: .infinity)
+                        } else {
+                            ForEach(viewModel.userImages) { userImage in
+                                VStack(alignment: .leading, spacing: 10) {
+                                    NavigationLink(destination: UserView(userID: userImage.userID)) {
+                                        VStack(alignment: .leading, spacing: 10) {
+                                            Text(userImage.userName).tint(.black)
+                                                .font(.system(size: 15)).bold()
+                                                .padding(.leading, 10)
+                                            
+                                            WebImage(url: URL(string: userImage.imageURL))
+                                                .resizable()
+                                                .scaledToFill()
+                                                .frame(width: UIScreen.main.bounds.width - 30, height: UIScreen.main.bounds.height * 0.5)
+                                                .cornerRadius(10)
+                                            
+                                            Text(userImage.timestamp.dateValue().timeAgoDisplay())
+                                                .font(.system(size: 13))
+                                                .foregroundColor(.gray)
+                                                .padding(.leading, 10)
+                                                .padding(.bottom, 5)
+                                            
+                                            Divider()
+                                                .background(Color.gray).padding(.bottom, 5)
+                                        }
+                                    }
+                                    .padding(.horizontal)
+                                }
+                            }
                         }
                     }
                 }
+                .refreshable {
+                    await refreshContent()
+                }
+                
+                Button(action: {
+                    showingImagePicker = true
+                }) {
+                    Image(systemName: "arrow.up.circle.fill")
+                        .resizable()
+                        .aspectRatio(contentMode: .fit)
+                        .frame(width: 60, height: 60)
+                        .background(Color.blue.opacity(0.2))
+                        .clipShape(Circle())
+                        .overlay(
+                            Circle()
+                                .stroke(Color.white, lineWidth: 5)
+                        )
+                        .foregroundColor(.blue)
+                }
+                .offset(y: -20)
             }
-            .refreshable {
-                await refreshContent()
-            }
-            
-            Button(action: {
-                showingImagePicker = true
-            }) {
-                Image(systemName: "arrow.up.circle.fill")
-                    .resizable()
-                    .aspectRatio(contentMode: .fit)
-                    .frame(width: 60, height: 60)
-                    .background(Color.blue.opacity(0.2))
-                    .clipShape(Circle())
-                    .overlay(
-                        Circle()
-                            .stroke(Color.white, lineWidth: 5)
-                    )
-                    .foregroundColor(.blue)
-            }
-            .offset(y: -20)
-        }
-        .sheet(isPresented: $showingImagePicker) {
-            ImagePicker(image: $image) { result in
-                switch result {
-                case .success:
-                    isSkeletonVisible = true
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                        viewModel.fetchFollowersPicture()
+            .sheet(isPresented: $showingImagePicker) {
+                ImagePicker(image: $image) { result in
+                    switch result {
+                    case .success:
+                        isSkeletonVisible = true
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                            viewModel.fetchFollowersPicture()
+                        }
+                    case .failure(let error):
+                        print("Image picker error: \(error)")
                     }
-                case .failure(let error):
-                    print("Image picker error: \(error)")
                 }
             }
-        }
-        .onAppear {
-            print("isFetched: \(isFetched)")
-            if !isFetched {
-                isSkeletonVisible = true
-                viewModel.fetchFollowersPicture()
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                    isFetched = true
-                    isSkeletonVisible = false
+            .onAppear {
+                print("isFetched: \(isFetched)")
+                if !isFetched {
+                    isSkeletonVisible = true
+                    viewModel.fetchFollowersPicture()
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                        isFetched = true
+                        isSkeletonVisible = false
+                    }
+                } else {
+                    viewModel.fetchFollowersPicture()
                 }
-            } else {
-                viewModel.fetchFollowersPicture()
             }
-        }
-        .onChange(of: image) { newImage in
-            if newImage != nil {
-                isSkeletonVisible = true
+            .onChange(of: image) { newImage in
+                if newImage != nil {
+                    isSkeletonVisible = true
+                }
             }
-        }
-        .onReceive(viewModel.$userImages) { _ in
-            isSkeletonVisible = false
+            .onReceive(viewModel.$userImages) { _ in
+                isSkeletonVisible = false
+            }
         }
     }
     

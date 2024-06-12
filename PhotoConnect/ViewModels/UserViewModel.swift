@@ -3,33 +3,29 @@ import FirebaseFirestore
 import FirebaseStorage
 import SwiftUI
 
-struct ImageItem: Identifiable, Equatable {
+struct ImageeItem: Identifiable, Equatable {
     let id = UUID()
     let imageName: String
     let timestamp: Timestamp
     
-    static func ==(lhs: ImageItem, rhs: ImageItem) -> Bool {
+    static func ==(lhs: ImageeItem, rhs: ImageeItem) -> Bool {
         return lhs.id == rhs.id
     }
 }
 
-class UserProfileViewModel: ObservableObject {
-    @Published var images: [ImageItem] = []
+class UserViewModel: ObservableObject {
+    @Published var images: [ImageeItem] = []
     @Published var userName: String = ""
     @Published var followersCount: Int = 0
     @Published var followingCount: Int = 0
     
     private var userListener: ListenerRegistration?
     private var db = Firestore.firestore()
-    private var auth = Auth.auth()
     private var userID: String
     
     init(userID: String) {
         self.userID = userID
         fetchUserProfile()
-        fetchImages()
-        fetchFollowerCount()
-        fetchFollowingCount()
     }
     
     deinit {
@@ -37,7 +33,14 @@ class UserProfileViewModel: ObservableObject {
     }
     
     func fetchUserProfile() {
-        db.collection("users").document(userID).addSnapshotListener { documentSnapshot, error in
+        fetchUserName()
+        fetchImages()
+        fetchFollowerCount()
+        fetchFollowingCount()
+    }
+    
+    private func fetchUserName() {
+        userListener = db.collection("users").document(userID).addSnapshotListener { documentSnapshot, error in
             if let error = error {
                 self.userName = "Anonym användare"
                 print("Error fetching user document: \(error.localizedDescription)")
@@ -59,8 +62,10 @@ class UserProfileViewModel: ObservableObject {
         }
     }
     
-    func fetchImages() {
-        db.collection("users").document(userID).addSnapshotListener { documentSnapshot, error in
+    private func fetchImages() {
+        let userRef = db.collection("users").document(userID)
+        
+        userRef.addSnapshotListener { documentSnapshot, error in
             if let error = error {
                 print("Error fetching user document: \(error.localizedDescription)")
                 return
@@ -76,12 +81,12 @@ class UserProfileViewModel: ObservableObject {
                 return
             }
             
-            var newImages: [ImageItem] = []
+            var newImages: [ImageeItem] = []
             
             for imageDataDict in imageData {
                 if let imageName = imageDataDict["url"] as? String,
                    let timestamp = imageDataDict["timestamp"] as? Timestamp {
-                    let newImage = ImageItem(imageName: imageName, timestamp: timestamp)
+                    let newImage = ImageeItem(imageName: imageName, timestamp: timestamp)
                     newImages.append(newImage)
                 } else {
                     print("Error parsing image data")
@@ -96,7 +101,7 @@ class UserProfileViewModel: ObservableObject {
         }
     }
     
-    func fetchFollowerCount() {
+    private func fetchFollowerCount() {
         db.collection("users").document(userID).collection("followers").addSnapshotListener { snapshot, error in
             if let error = error {
                 print("Error fetching followers: \(error.localizedDescription)")
@@ -107,7 +112,7 @@ class UserProfileViewModel: ObservableObject {
         }
     }
     
-    func fetchFollowingCount() {
+    private func fetchFollowingCount() {
         db.collection("users").document(userID).collection("following").addSnapshotListener { snapshot, error in
             if let error = error {
                 print("Error fetching following: \(error.localizedDescription)")
@@ -118,32 +123,7 @@ class UserProfileViewModel: ObservableObject {
         }
     }
     
-    func deleteImage(image: ImageItem) {
-        let storageRef = Storage.storage().reference(forURL: image.imageName)
-        
-        storageRef.delete { error in
-            if let error = error {
-                print("Error deleting image from storage: \(error.localizedDescription)")
-                return
-            }
-            
-            self.db.collection("users").document(self.userID).updateData([
-                "images": FieldValue.arrayRemove([["url": image.imageName, "timestamp": image.timestamp]])
-            ]) { error in
-                if let error = error {
-                    print("Error deleting image from Firestore: \(error.localizedDescription)")
-                    return
-                }
-                
-                DispatchQueue.main.async {
-                    self.images.removeAll { $0.id == image.id }
-                }
-            }
-        }
-    }
-    
     private func unsubscribe() {
         userListener?.remove()
     }
 }
-
