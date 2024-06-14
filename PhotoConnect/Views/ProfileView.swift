@@ -5,7 +5,8 @@ import SDWebImageSwiftUI
 
 struct ProfileView: View {
     @StateObject private var viewModel: UserProfileViewModel
-    @State private var alertType: AlertType? = nil
+    @State private var showingActionSheet: Bool = false
+    @State private var actionSheetType: ActionSheetType? = nil
     @State private var alertMessage = ""
     @State private var selectedImage: ImageItem? = nil
     @State private var showFullScreenImage = false
@@ -18,7 +19,7 @@ struct ProfileView: View {
         _viewModel = StateObject(wrappedValue: UserProfileViewModel(userID: userID))
     }
     
-    enum AlertType: Identifiable {
+    enum ActionSheetType: Identifiable {
         case logOut
         case deleteImage
         
@@ -36,9 +37,8 @@ struct ProfileView: View {
                         .padding(.horizontal)
                     
                     Button(action: {
-                        alertMessage = "Är du säker att du vill logga ut?"
-                        alertType = .logOut
-                        print("Log out button pressed, alertType set to \(String(describing: alertType))")
+                        actionSheetType = .logOut
+                        showingActionSheet = true
                     }) {
                         Image(systemName: "rectangle.portrait.and.arrow.right")
                             .font(.title2)
@@ -99,8 +99,8 @@ struct ProfileView: View {
                                     }
                                     .onLongPressGesture(minimumDuration: 0.5) {
                                         selectedImage = image
-                                        alertMessage = "Är du säker på att du vill ta bort denna bild?"
-                                        alertType = .deleteImage
+                                        actionSheetType = .deleteImage
+                                        showingActionSheet = true
                                     } onPressingChanged: { isPressing in
                                         if isPressing {
                                             longPressingImage = image
@@ -116,24 +116,30 @@ struct ProfileView: View {
                 }
                 Spacer()
             }
-            .alert(item: $alertType) { alertType in
-                switch alertType {
+            .actionSheet(isPresented: $showingActionSheet) {
+                switch actionSheetType {
                 case .logOut:
-                    return Alert(title: Text("Är du säker?"),
-                                 message: Text(alertMessage),
-                                 primaryButton: .destructive(Text("Logga ut")) {
-                        logOut()
-                    },
-                                 secondaryButton: .cancel())
+                    return ActionSheet(title: Text("Är du säker?"),
+                                       message: Text("Är du säker att du vill logga ut?"),
+                                       buttons: [
+                                        .destructive(Text("Logga ut")) {
+                                            logOut()
+                                        },
+                                        .cancel()
+                                       ])
                 case .deleteImage:
-                    return Alert(title: Text("Är du säker?"),
-                                 message: Text(alertMessage),
-                                 primaryButton: .destructive(Text("Ta bort")) {
-                        if let image = selectedImage {
-                            viewModel.deleteImage(image: image)
-                        }
-                    },
-                                 secondaryButton: .cancel())
+                    return ActionSheet(title: Text("Är du säker?"),
+                                       message: Text("Är du säker på att du vill ta bort denna bild?"),
+                                       buttons: [
+                                        .destructive(Text("Ta bort")) {
+                                            if let image = selectedImage {
+                                                viewModel.deleteImage(image: image)
+                                            }
+                                        },
+                                        .cancel()
+                                       ])
+                case .none:
+                    return ActionSheet(title: Text("Error"), message: Text("Något gick fel."), buttons: [.cancel()])
                 }
             }
             .fullScreenCover(isPresented: $showFullScreenImage) {
