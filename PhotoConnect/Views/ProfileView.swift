@@ -84,30 +84,46 @@ struct ProfileView: View {
                         
                         LazyVGrid(columns: columns, spacing: 10) {
                             ForEach(viewModel.images) { image in
-                                WebImage(url: URL(string: image.imageName))
-                                    .resizable()
-                                    .scaledToFill()
-                                    .frame(width: 115, height: 115)
-                                    .clipped()
-                                    .cornerRadius(10)
-                                    .opacity(longPressingImage == image ? 0.5 : 1.0)
-                                    .contentShape(Rectangle())
-                                    .onTapGesture {
-                                        selectedImage = image
-                                        showFullScreenImage = true
-                                        print("Selected image URL: \(image.imageName)")
-                                    }
-                                    .onLongPressGesture(minimumDuration: 0.5) {
+                                ZStack(alignment: .topTrailing) {
+                                    WebImage(url: URL(string: image.imageName))
+                                        .resizable()
+                                        .scaledToFill()
+                                        .frame(width: 115, height: 115)
+                                        .clipped()
+                                        .cornerRadius(10)
+                                        .opacity(longPressingImage == image ? 0.5 : 1.0)
+                                        .contentShape(Rectangle())
+                                        .onTapGesture {
+                                            selectedImage = image
+                                            showFullScreenImage = true
+                                            print("Selected image URL: \(image.imageName)")
+                                        }
+                                        .onLongPressGesture(minimumDuration: 0.5) {
+                                            selectedImage = image
+                                            actionSheetType = .deleteImage
+                                            showingActionSheet = true
+                                        } onPressingChanged: { isPressing in
+                                            if isPressing {
+                                                longPressingImage = image
+                                            } else {
+                                                longPressingImage = nil
+                                            }
+                                        }
+                                    
+                                    Button(action: {
                                         selectedImage = image
                                         actionSheetType = .deleteImage
                                         showingActionSheet = true
-                                    } onPressingChanged: { isPressing in
-                                        if isPressing {
-                                            longPressingImage = image
-                                        } else {
-                                            longPressingImage = nil
-                                        }
+                                    }) {
+                                        Image(systemName: "ellipsis")
+                                            .font(.system(size: 16))
+                                            .foregroundColor(.white)
+                                            .padding(10)
+                                            .background(longPressingImage == image ? Color.black.opacity(0.3) : Color.black.opacity(0.9))
+                                            .clipShape(Circle())
                                     }
+                                    .offset(x: -1, y: 6)
+                                }
                             }
                         }.padding()
                     }.refreshable {
